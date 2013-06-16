@@ -29,11 +29,12 @@ public class Activity implements Serializable {
     private Double maxSpeed;
     private Integer orderNumber;
     private ActivityStatus status;
+    private Long coachId;
 
     public Activity() {
     }
 
-    public Activity(Integer minHeartRate, Integer maxHeartRate, Double minTension, Double maxTension, Long duration, String name, String description, Long workoutId, Double minSpeed, Double maxSpeed) {
+    public Activity(Long coachId, Integer minHeartRate, Integer maxHeartRate, Double minTension, Double maxTension, Long duration, String name, String description, Long workoutId, Double minSpeed, Double maxSpeed) {
         this.minHeartRate = minHeartRate;
         this.maxHeartRate = maxHeartRate;
         this.minTension = minTension;
@@ -44,6 +45,7 @@ public class Activity implements Serializable {
         this.workoutId = workoutId;
         this.minSpeed = minSpeed;
         this.maxSpeed = maxSpeed;
+        this.coachId = coachId;
         this.status = ActivityStatus.NEW;
     }
 
@@ -149,6 +151,14 @@ public class Activity implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getCoachId() {
+        return coachId;
+    }
+
+    public void setCoachId(Long coachId) {
+        this.coachId = coachId;
     }
 
     @Override

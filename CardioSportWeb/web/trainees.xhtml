@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <meta charset="utf-8"/>
+        <title>FA - Dashboard</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
+        <link rel="shortcut icon" href="favicon.png"/>
+        <!---CSS Files-->
+        <link rel="stylesheet" href="css/core.css"/>
+        <link rel="stylesheet" href="css/style.css"/>
+        <!---jQuery Files-->
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/inputs.js"></script>
+        <script src="js/flot.js"></script>
+        <script src="js/functions.js"></script>
+        <script src="js/auth.js"></script>
+    </h:head>
+    <h:body>
+
+        <div id="wrapper">
+
+            <!--USER PANEL-->
+
+            <div id="usr-panel">
+                <div class="av-overlay"></div>
+                <img src="img/avatars/nick.jpg" id="usr-av"/>
+                <div id="usr-info">
+                    <span id="usr-name">Nick Halden</span><span id="usr-role">Administrator</span>
+                    <button id="usr-btn" class="orange" data-modal="#usr-mod #mod-home">User CP</button>
+                </div>
+            </div>
+
+            <!--NAVIGATION-->
+
+            <div id="nav">
+                <ul>
+                    <li><a href="workouts.xhtml"></a><span class="icon">&lt;</span>трени ровки</li>
+                    <li><a href="activities.xhtml"></a><span class="icon">F</span>актив ности</li>
+                    <li class="active"><span class="icon">H</span>Спорт смены</li>
+                    <li><a href="analytics.html"></a><span class="icon">G</span>Analytics</li>
+                    <li><a href="extras.html"></a><span class="icon">S</span>Extras</li>
+                    <li><a href="grid.html"></a><span class="icon">N</span>Grid</li>
+                    <li data-modal="#usr-mod #mod-set" id="set-btn"><span class="icon">)</span>Settings</li>
+                    <li id="logout"><a href="index.html"></a><span class="icon icon-grad">B</span>Log Out</li>
+                </ul>
+                <br class="clear"/>
+            </div>
+
+            <div id="content" class="dashboard-page"><!--BEGIN MAIN CONTENT-->
+
+                <!--TABLE-->
+
+                <div id="tb-box" class="box g3">
+                    <table id="dash-tb" class="table">
+                        <thead>
+                            <tr><th>Имя Фамилия</th><th>Email/Пароль</th></tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach items="#{traineesListBean.trainees}" var="tr">
+                                <tr><td>#{tr.firstName} #{tr.lastName}</td><td>#{tr.email} / #{tr.password}</td>
+                                </tr>
+
+                            </c:forEach>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="inputs" class="box g6">
+                    <h2 class="box-ttl">Регистрация спортсмена</h2>
+                    <div class="box-body form">
+
+                        <span class="label input g4">email</span>
+                        <input type="text" id="email_input" class="g12" />
+                        <span class="label input g4">Пароль</span>
+                        <input type="text" id="password_input" class="g12" />
+                        <span class="label input g4">Имя</span>
+                        <input type="text" id="firstName_input" class="g12" />
+                        <span class="label input g4">Фамилия</span>
+                        <input type="text" id="lastName_input" class="g12" />
+                        <span class="button btn-box btn-l" onclick="register_trainee();"  > Создать </span>
+
+
+
+                    </div>
+                </div>
+
+            </div><!--END MAIN CONTENT-->
+
+            <!--MODAL WINDOWS-->
+
+
+        </div><!--END WRAPPER-->
+
+        <span id="load">
+            <img src="img/load.png"/><img src="img/spinner.png" id="spinner"/>
+        </span>
+
+        <!---jQuery Code-->
+        <script type='text/javascript'>
+
+            // LOAD FUNCTIONS
+            //<![CDATA[
+            $.fn.loadfns( function() {
+                sustainSession();
+                //                $('#calendar').calEvents();
+                $('#ind-cont #nbill').removeClass('init');
+                //                if ($('#ind-cont').width() < 500) $('#ind-cont').find('.pie-desc').addClass('overlay');
+                //                $(window).resize( function() {
+                //                    if ($('body').children('#toast-container').length < 1)
+                //                        toastr.info('If content goes out of place when resizing, just hit refresh');
+                //                });
+            });
+            //]]>
+        </script>
+    </h:body>
+</html>

@@ -1,12 +1,16 @@
 package ru.sport.cardiomood.core.managers;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import ru.sport.cardiomood.core.exceptions.SportException;
 import ru.sport.cardiomood.core.jpa.Activity;
+import ru.sport.cardiomood.utils.CardioUtils;
 
 /**
  *
@@ -41,11 +45,11 @@ public class ActivityManager implements ActivityManagerLocal {
     }
 
     @Override
-    public Activity createActivity(Integer minHeartRate, Integer maxHeartRate, Double minTension, Double maxTension, Long duration, String name, String description, Long workoutId, Double minSpeed, Double maxSpeed) throws SportException {
+    public Activity createActivity(Long userId, Integer minHeartRate, Integer maxHeartRate, Double minTension, Double maxTension, Long duration, String name, String description, Long workoutId, Double minSpeed, Double maxSpeed) throws SportException {
         if (getActivityByName(name, workoutId) != null) {
             throw new SportException("activity with name='" + name + "' already exists in the system");
         }
-        Activity a = new Activity(minHeartRate, maxHeartRate, minTension, maxTension, duration, name, description, workoutId, minSpeed, maxSpeed);
+        Activity a = new Activity(userId, minHeartRate, maxHeartRate, minTension, maxTension, duration, name, description, workoutId, minSpeed, maxSpeed);
         return em.merge(a);
     }
 
@@ -67,9 +71,37 @@ public class ActivityManager implements ActivityManagerLocal {
     }
 
     @Override
-    public  Activity cloneActivity(Activity oldActivity, Long workoutId, Integer orderNumber) {
-        Activity a = new Activity(oldActivity.getMinHeartRate(), oldActivity.getMaxHeartRate(), oldActivity.getMinTension(), oldActivity.getMaxTension(), oldActivity.getDuration(), oldActivity.getName(), oldActivity.getDescription(), workoutId, oldActivity.getMinSpeed(), oldActivity.getMaxSpeed());
+    public Activity cloneActivity(Activity oldActivity, Long workoutId, Integer orderNumber) {
+        Activity a = new Activity(oldActivity.getCoachId(), oldActivity.getMinHeartRate(), oldActivity.getMaxHeartRate(), oldActivity.getMinTension(), oldActivity.getMaxTension(), oldActivity.getDuration(), oldActivity.getName(), oldActivity.getDescription(), workoutId, oldActivity.getMinSpeed(), oldActivity.getMaxSpeed());
         a.setOrderNumber(orderNumber);
         return em.merge(a);
+    }
+
+    @Override
+//    @TransactionAttribute(TransactionAttributeType.NEVER)
+    public List<Activity> getCoachActivities(Long coachId) throws SportException {
+        CardioUtils.checkNull(coachId);
+        Query q = em.createQuery("select a from Activity a where a.coachId = :cId").setParameter("cId", coachId);
+        List<Activity> list = q.getResultList();
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        return list;
+    }
+
+    @Override
+    public List<Activity> addActivitiesToWorkout(Long workoutId, List<Long> activities) throws SportException {
+        System.out.println("addActivitiesToWorkout: workoutId = " + workoutId +" ; activities = " + activities);
+        if (activities == null) {
+            return null;
+        }
+        List<Activity> list = new ArrayList();
+        for (int i = 0; i < activities.size(); i++) {
+            System.out.println("adding activity id=" + activities.get(i));
+            Activity oldA = getActivityById(activities.get(i));
+            Activity nAct = cloneActivity(oldA, workoutId, i);
+            list.add(nAct);
+        }
+        return list;
     }
 }

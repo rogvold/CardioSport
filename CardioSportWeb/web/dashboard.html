@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <title>FA - Dashboard</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
+        <link rel="shortcut icon" href="favicon.png"/>
+        <!---CSS Files-->
+        <link rel="stylesheet" href="css/core.css"/>
+        <link rel="stylesheet" href="css/style.css"/>
+        <!---jQuery Files-->
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/inputs.js"></script>
+        <script src="js/flot.js"></script>
+        <script src="js/functions.js"></script>
+    </head>
+    <body>
+
+        <div id="wrapper">
+
+            <!--USER PANEL-->
+
+            <div id="usr-panel">
+                <div class="av-overlay"></div>
+                <img src="img/avatars/nick.jpg" id="usr-av">
+                <div id="usr-info">
+                    <span id="usr-name">Nick Halden</span><span id="usr-role">Administrator</span>
+                    <button id="usr-btn" class="orange" data-modal="#usr-mod #mod-home">User CP</button>
+                </div>
+            </div>
+
+            <!--NAVIGATION-->
+
+            <div id="nav">
+                <ul>
+                    <li><a href="ui.html"></a><span class="icon">&lt;</span>UI Elements</li>
+                    <li class="active"><span class="icon">H</span>Спорт смены</li>
+                    <li><a href="inputs.html"></a><span class="icon">F</span>Inputs</li>
+                    <li><a href="analytics.html"></a><span class="icon">G</span>Analytics</li>
+                    <li><a href="extras.html"></a><span class="icon">S</span>Extras</li>
+                    <li><a href="grid.html"></a><span class="icon">N</span>Grid</li>
+                    <li data-modal="#usr-mod #mod-set" id="set-btn"><span class="icon">)</span>Settings</li>
+                    <li id="logout"><a href="index.html"></a><span class="icon icon-grad">B</span>Log Out</li>
+                </ul>
+                <br class="clear"/>
+            </div>
+
+            <div id="content" class="dashboard-page"><!--BEGIN MAIN CONTENT-->
+
+                <!--TABLE-->
+
+                <div id="tb-box" class="box g3">
+                    <table id="dash-tb" class="table">
+                        <thead>
+                            <tr><th>Фамилия</th><th>Имя</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Adam Burke</td><td>247 Independence St, MT 51382</td>
+                            </tr>
+                            <tr><td>Laura Stanton</td><td>463 Coney Island Ave, NY 11230</td>
+                            </tr>
+                            <tr><td>Joe Camden</td><td>1521 Vance Ave, TN 38104</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div><!--END MAIN CONTENT-->
+
+            <!--MODAL WINDOWS-->
+
+
+        </div><!--END WRAPPER-->
+
+        <span id="load">
+            <img src="img/load.png"><img src="img/spinner.png" id="spinner">
+        </span>
+
+        <!---jQuery Code-->
+        <script type='text/javascript'>
+
+            // LOAD FUNCTIONS
+
+            $.fn.loadfns( function() {
+//                $('#calendar').calEvents();
+                $('#ind-cont #nbill').removeClass('init');
+                if ($('#ind-cont').width() < 500) $('#ind-cont').find('.pie-desc').addClass('overlay');
+                $(window).resize( function() {
+                    if ($('body').children('#toast-container').length < 1)
+                        toastr.info('If content goes out of place when resizing, just hit refresh');
+                });
+            });
+
+        </script>
+    </body>
+</html>

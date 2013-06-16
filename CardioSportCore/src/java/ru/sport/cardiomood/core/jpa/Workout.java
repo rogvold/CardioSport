@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
 import ru.sport.cardiomood.core.enums.WorkoutStatus;
+import ru.sport.cardiomood.core.enums.WorkoutType;
 
 /**
  *
@@ -29,6 +30,9 @@ public class Workout implements Serializable {
     private Date stopDate;
     @Enumerated(EnumType.STRING)
     private WorkoutStatus status;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startDate;
+    private WorkoutType workoutType;
 
     public Workout(Long coachId, String name, String description) {
         this.coachId = coachId;
@@ -37,6 +41,22 @@ public class Workout implements Serializable {
     }
 
     public Workout() {
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public WorkoutType getWorkoutType() {
+        return workoutType;
+    }
+
+    public void setWorkoutType(WorkoutType workoutType) {
+        this.workoutType = workoutType;
     }
 
     public WorkoutStatus getStatus() {

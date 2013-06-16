@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Flame Admin - Login</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
+        <link rel="shortcut icon" href="favicon.png">
+        <!---CSS Files-->
+        <link rel="stylesheet" href="css/core.css">
+        <link rel="stylesheet" href="css/login.css">
+        <link rel="stylesheet" href="css/ui.css">  
+        <!---jQuery Files-->
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/inputs.js"></script>
+        <!--        <script src="js/flot.js"></script>-->
+        <script src="js/functions.js"></script>
+        <script src="js/auth.js"></script>
+    </head>
+    <body>
+
+        <div id="wrapper">
+
+            <div id="header">
+                <div id="logo"></div>
+                <h1>CardioMood Sport</h1>
+            </div>
+
+            <div id="body">
+                <div id="head">
+                    <span class="icon">K</span>
+                    <h2>Регистрация</h2>
+                    <br class="clear">
+                </div>
+                <form id="alt-lg-form" method="post" action="dashboard.html">
+                    <div id="middle">
+                        <ul id="lg-input">
+                            <li id="usr-li">
+                                <input type="text" style="line-height: 20px;" name="user" id="usr" class="required email" placeholder="Email" />
+                                <span class="icon">a</span>
+                            </li>
+                            <li id="psw-li">
+                                <input type="password" name="pass" style="line-height: 20px;" id="psw" class="required" placeholder="Пароль">
+                                <!--                                <a href="recoverpass.html" id="forgot-psw">Forgot ?</a>-->
+                                <span class="icon">/</span>
+                            </li>
+
+                            <li id="psw-li">
+                                <input type="password" name="pass" style="line-height: 20px;" id="re-psw" class="required" placeholder="Еще раз пароль">
+                                <span class="icon">/</span>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <div id="bottom">
+                        <span id="register_button" class="button orange right btn-m">Зарегистрироваться</span>
+                        <br class="clear">
+                    </div>
+                </form>
+            </div>
+
+            <!--            <div class="notif">
+                            Notification text <span class="icon">Icon</span>
+                            <p class="nt-det">Notification details</p>
+                        </div>-->
+
+            <!--            <div id="notification-area">
+                            <div class="notification" id="welcome">
+                                <span class="icon">N</span>
+                                <p>Also try the <a href="login-sg.html">single user login</a>, or go back to the <a href="index.html">user selection login</a>.</p>
+                            </div>
+                        </div>-->
+
+        </div>
+
+        <span id="load">
+            <img src="img/load.png"><img src="img/spinner.png" id="spinner">
+        </span>
+
+        <!---jQuery Code-->
+        <script type='text/javascript'>
+            $('#wrapper, .notification, #forgot-psw').hide();
+            $('#load').fadeIn(400);
+            
+            $(window).load( function() {
+                $('#register_button').bind('click', function(){
+                    if ($('#psw').val() == $('#re-psw').val()){
+                        register($('#usr').val(), $('#psw').val());
+                    }else{
+                        toastr.error("Пароль и повтор пароля должны совпадать");
+                    }
+                });
+                
+                
+                $('#load').fadeOut(400, function() {
+                    $('#wrapper').fadeIn(600, function() {
+                        //                        $('.notif').notif();
+                        //                         toastr.success('Success growl');
+                        //                        toastr.options.positionClass = 'toast-top-left';
+                        //                        toastr.error('Shutting down in... now' , 'Error');
+                        //                        $('#welcome.notification').delay(500).fadeIn(400).loginNotif();
+                        $('#psw').focus();
+                    });
+                });
+            });
+
+            $('#rb-check').flcheck();
+
+            $('#alt-lg-form').validateLogin();
+
+        </script>
+    </body>
+</html>

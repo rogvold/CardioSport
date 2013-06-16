@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Flame Admin - Login</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
+  <link rel="shortcut icon" href="favicon.png">
+  <!---CSS Files-->
+  <link rel="stylesheet" href="css/core.css">
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/ui.css">
+  <!---jQuery Files-->
+  <script src="js/jquery.js"></script>
+  <script src="js/inputs.js"></script>
+</head>
+<body>
+
+	<div id="wrapper">
+
+    <div id="header">
+      <div id="logo"></div>
+  		<h1>FLAME ADMIN - LOGIN</h1>
+    </div>
+
+    <ul id="users">
+      <li data-name="Nick Halden">
+        <div class="av-overlay"></div><img src="img/avatars/nick.jpg" class="av">
+        <span class="av-tooltip">Nick Halden</span>
+      </li>
+      <li data-name="Katherine">
+        <div class="av-overlay"></div><img src="img/avatars/kat.jpg" class="av">
+        <span class="av-tooltip">Katherine</span>
+      </li>
+      <li data-name="John Doe">
+        <div class="av-overlay"></div><img src="img/avatars/guest.jpg" class="av">
+        <span class="av-tooltip">John Doe</span>
+      </li>
+      <br class="clear">
+    </ul>
+
+    <div id="notification-area">
+      <div class="notification" id="welcome">
+        <span class="icon">H</span>
+        <p>Select a user to login, or try the <a href="login-alt.html">alternative login</a>.</p>
+      </div>
+    </div>
+    
+  </div>
+
+  <div id="lg-overlay">
+    <div id="quick-lg">
+      <form id="lg-form" method="post" action="dashboard.html">
+        <div id="field">
+          <p id="placeholder">Enter your password...</p>
+          <input type="password" id="quick-input" autocomplete="off">
+          <a href="recoverpass.html" id="forgot-psw">Forgot ?</a>
+          <span class="icon">/<img src="img/spinner-sm.gif"></span>
+        </div>
+        <button type="submit" id="lg-submit" class="button inset submit">LOGIN</button>
+        <br class="clear">
+      </form>
+    </div>
+  </div>
+
+  <span id="load">
+    <img src="img/load.png"><img src="img/spinner.png" id="spinner">
+  </span>
+
+  <!---jQuery Code-->
+  <script type='text/javascript'>
+    $('.av-tooltip, #wrapper, #lg-overlay, #load, #field span img, #forgot-psw, .notification').hide();
+    if ($(window).width() < 420) window.location.replace("login-alt.html");
+    $('#load').fadeIn(400);
+    $(window).load( function() {
+     $('#load').fadeOut(400, function() {
+      $('#wrapper').fadeIn(600, function () {
+        $('#welcome.notification').delay(500).fadeIn(400).loginNotif();
+      });
+     });
+    });
+
+    $('#users li').hoverIntent( function () {
+           $('.av-overlay, img.av', this).addClass('hover');
+           $('.av-tooltip', this).fadeIn(300);
+         }, function() {
+           $('.av-overlay, img.av', this).removeClass('hover');
+           $('.av-tooltip').fadeOut(100);  
+    }, 10);
+    $('#users li').click( function () {
+       $('#lg-overlay').fadeIn(400, function() {
+        $('#quick-input').delay(300).focus();
+       }); 
+    });
+    $('#lg-overlay').click( function(e) {
+      if($(e.target).is('#quick-lg, #quick-lg *')) return;
+      $(this).fadeOut(300);
+    });
+
+    $('#lg-form').submit( function(e) {
+      $('#field span').html('<img src="img/spinner-sm.gif">');
+      var pswlgt = $('#quick-input').val().length;
+      if(pswlgt < 1) {
+        e.preventDefault();
+        $('#placeholder').text('Please enter at least 1 character');
+        $('#field span').fadeOut(200, function() {
+          $(this).text('X').css('color','#e56969').fadeIn(100);
+          $('#quick-input').val('').focus();
+        });
+        $('#field').removeClass('success').addClass('error');
+        $('#forgot-psw').show();
+      } else {
+        e.preventDefault();
+        var self = this;
+        window.setTimeout(function() {
+         self.submit();
+        }, 300);
+        $('#field span').fadeOut(200, function() {
+          $(this).text('=').css('color','#9fbf2f').fadeIn(100)
+        });
+        $('#field').removeClass('error').addClass('success');
+        $('#placeholder').text('');
+      }
+    });
+
+    $('#quick-input').keypress( function() {
+      $('#field span').text('/').css('color','#ccc');
+      $('#field').removeClass('error','success');
+      $('#placeholder').text('');
+      $('#forgot-psw').hide();
+    });
+    $('#quick-input').blur(function() {
+      $(this).filter(function() { return this.value == ""; })
+      .siblings('#placeholder').text('Enter your password...');
+    });
+
+  </script>
+</body>
+</html>
