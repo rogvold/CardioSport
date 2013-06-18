@@ -29,6 +29,10 @@ public class Workout implements Serializable {
     private Date stopDate;
     @Enumerated(EnumType.STRING)
     private WorkoutStatus status;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startDate;
+    private Long parentWorkoutId;
+    private Long traineeId;
 
     public Workout(Long coachId, String name, String description) {
         this.coachId = coachId;
@@ -37,6 +41,22 @@ public class Workout implements Serializable {
     }
 
     public Workout() {
+    }
+
+    public Long getParentWorkoutId() {
+        return parentWorkoutId;
+    }
+
+    public void setParentWorkoutId(Long parentWorkoutId) {
+        this.parentWorkoutId = parentWorkoutId;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
     public WorkoutStatus getStatus() {
@@ -101,6 +121,14 @@ public class Workout implements Serializable {
 
     public void setStopDate(Date stopDate) {
         this.stopDate = stopDate;
+    }
+
+    public Long getTraineeId() {
+        return traineeId;
+    }
+
+    public void setTraineeId(Long traineeId) {
+        this.traineeId = traineeId;
     }
 
     @Override

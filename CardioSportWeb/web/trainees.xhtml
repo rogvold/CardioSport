@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <meta charset="utf-8"/>
+        <title>FA - Dashboard</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
+        <link rel="shortcut icon" href="favicon.png"/>
+        <!---CSS Files-->
+        <link rel="stylesheet" href="css/core.css"/>
+        <link rel="stylesheet" href="css/style.css"/>
+        <!---jQuery Files-->
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/inputs.js"></script>
+        <script src="js/flot.js"></script>
+        <script src="js/functions.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/workout.js"></script>
+        <script src="js/trainees.js"></script>
+    </h:head>
+    <h:body>
+
+        <div id="wrapper">
+
+            <!--USER PANEL-->
+
+            <div id="usr-panel">
+                <div class="av-overlay"></div>
+                <img src="img/avatars/nick.jpg" id="usr-av"/>
+                <div id="usr-info">
+                    <span id="usr-name">Nick Halden</span><span id="usr-role">Administrator</span>
+                    <button id="usr-btn" class="orange" data-modal="#usr-mod #mod-home">User CP</button>
+                </div>
+            </div>
+
+            <!--NAVIGATION-->
+
+            <div id="nav">
+                <ul>
+                    <li><a href="workouts.xhtml"></a><span class="icon">&lt;</span>трени ровки</li>
+                    <li><a href="activities.xhtml"></a><span class="icon">F</span>актив ности</li>
+                    <li class="active"><span class="icon">H</span>Спорт смены</li>
+                    <li><a href="analytics.html"></a><span class="icon">G</span>Analytics</li>
+                    <li><a href="extras.html"></a><span class="icon">S</span>Extras</li>
+                    <li><a href="grid.html"></a><span class="icon">N</span>Grid</li>
+                    <li data-modal="#usr-mod #mod-set" id="set-btn"><span class="icon">)</span>Settings</li>
+                    <li id="logout"><a href="index.html"></a><span class="icon icon-grad">B</span>Log Out</li>
+                </ul>
+                <br class="clear"/>
+            </div>
+
+            <div id="content" class="dashboard-page"><!--BEGIN MAIN CONTENT-->
+
+                <!--TABLE-->
+
+                <div id="tb-box" class="box g3">
+                    <table  class="table">
+                        <thead>
+                            <tr><th>Имя Фамилия</th><th>Email/Пароль</th><th>Статус</th></tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach items="#{traineesListBean.trainees}" var="tr">
+                                <tr><td>#{tr.firstName} #{tr.lastName}</td>
+                                    <td>#{tr.email} / #{tr.password}</td>
+                                    <td><span class="tag red">Red tag</span></td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <c:forEach items="#{traineesListBean.trainees}" var="tr">
+                    <div class="box nav-box nav-btm  g4">
+                        <a href="sportsman.xhtml?id=#{tr.id}"><span class="box-ttl">#{tr.firstName} #{tr.lastName}</span></a>
+                        <div class="nav-body updown" style="height: 64.88888883590698px;">
+                            <div id="tab1_#{tr.id}" class="nav-item show">
+                                <span class="g8" >
+
+                                    <p>
+                                        <span class="tag  inline trainee_appointment_status_tag" data-id="#{tr.id}">
+                                            <c:if test="#{tr.currentWorkoutId eq null}">Не назначено</c:if>
+                                            <c:if test="#{tr.currentWorkoutId ne null}"><span style="color: lightblue;">назначено</span></c:if>
+                                        </span>
+                                    </p>
+                                    <br/>
+                                    <c:if test="#{workoutBean.canAppointWorkout(tr.id)}">
+                                        <p>
+                                            <span class="tag purple inline appointment_button" data-id="#{tr.id}" >
+                                                <c:if test="#{tr.currentWorkoutId eq null}">назначить</c:if>
+                                                <c:if test="#{tr.currentWorkoutId ne null}">переназначить</c:if>
+                                            </span>
+                                        </p>
+                                    </c:if>
+                                    <br/>
+
+                                    <p>
+                                        расст: <span class="tag  inline"><span class="distance_label" data-id="#{tr.id}" >N/A</span></span>
+                                    </p>
+                                </span>
+
+                                <span class="g8" style="margin: 0px;">
+                                    <p style="text-align: center; border: 1px dotted gray; border-top-left-radius: 5px; border-top-right-radius: 5px;">
+                                        <span style="color: firebrick;">пульс</span><br/>
+                                        <span class="pulse_label" data-id="#{tr.id}" style="font-size: 25px;">N/A</span>
+                                    </p>
+
+                                    <p style="text-align: center; border: 1px dotted gray; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">
+                                        скорость<br/>
+                                        <span class="speed_label" data-id="#{tr.id}" style="font-size: 25px;">N/A</span> <span style="font-size: 20px;" ></span>
+                                    </p>
+                                </span>
+                            </div>
+
+                            <div id="tab2_#{tr.id}" class="nav-item">
+                                email: #{tr.email}<br/><br/>
+                                пароль: #{tr.password}
+                            </div>
+
+                            <c:if test="#{tr.currentWorkoutId ne null}">
+                                <div id="tab3_#{tr.id}" class="nav-item">
+                                    <span class="orange-text">
+                                        #{workoutBean.workoutById(tr.currentWorkoutId).name}
+                                    </span>
+                                    <br/><br/>
+
+                                    #{workoutBean.shortWorkoutInfo(tr.currentWorkoutId)}
+
+                                </div>
+                            </c:if>
+
+
+                        </div>
+                        <ul class="nav">
+                            <li data-nav="#tab1_#{tr.id}" class="sel">Информация</li>
+                            <c:if test="#{tr.currentWorkoutId ne null}"><li data-nav="#tab3_#{tr.id}" >Тренировка</li></c:if>
+                            <li data-nav="#tab2_#{tr.id}" >Профиль</li>
+                        </ul>
+                    </div>
+                </c:forEach>
+
+                <br class="clear"/>
+
+
+                <br class="clear" />
+
+                <div id="inputs" class="box g6">
+                    <h2 class="box-ttl">Регистрация спортсмена</h2>
+                    <div class="box-body form">
+
+                        <span class="label input g4">email</span>
+                        <input type="text" id="email_input" class="g12" />
+                        <span class="label input g4">Пароль</span>
+                        <input type="text" id="password_input" class="g12" />
+                        <span class="label input g4">Имя</span>
+                        <input type="text" id="firstName_input" class="g12" />
+                        <span class="label input g4">Фамилия</span>
+                        <input type="text" id="lastName_input" class="g12" />
+                        <span class="button btn-box btn-l" style="padding: 5px;" onclick="register_trainee();"  > Создать </span>
+
+
+
+                    </div>
+                </div>
+
+            </div><!--END MAIN CONTENT-->
+            <button id="trigger-id" style="display: none;" data-modal="#mod-id ">Show modal</button>
+            <!--MODAL WINDOWS-->
+            <div id="modal-ov">
+                <div class="modal" id="mod-id">
+                    <div class="mod-ttl"><h2>Выберите тренировку</h2></div>
+                    <div class="mod-body">
+                        <div  class="box row3 super-accordion" style="width: 100% !important;" id="workouts_list_dialog">
+
+                            <div class="scroll has-scrollbar">
+                                <ul class="ul-grad scroll-cont" tabindex="0" style="right: -15px;">
+                                    <c:forEach items="#{workoutBean.workouts}" var="work">
+                                        <li data-id="#{work.id}" class="workout_list_item" >
+                                            <span class="support-name">#{work.name}</span>
+
+                                            <button class="blue info_button info_workout_button" data-id="#{work.id}">i</button>
+                                            <button class="green appoint_workout_button_plus"  data-id="#{work.id}">+</button>
+
+                                            <p class="support-msg" style="margin-top: 10px;">
+                                                <span class="orange-text">#{work.description} </span>
+                                                <br/> Краткое описание: <br/>
+                                                <c:forEach items="#{work.activities}" var="act" varStatus="num">
+                                                    #{num.count})#{act.name} (#{act.duration / 60000} мин.) 
+                                                </c:forEach>
+                                            </p>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                                <div class="pane" style="display: block;"><div class="slider" style="height: 213px; top: 22.12987012987013px;"></div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!--END WRAPPER-->
+
+        <span id="load">
+            <img src="img/load.png"/><img src="img/spinner.png" id="spinner"/>
+        </span>
+
+        <!---jQuery Code-->
+        <script type='text/javascript'>
+
+            // LOAD FUNCTIONS
+            //<![CDATA[
+            $.fn.loadfns( function() {
+                loadAll();
+                sustainSession();
+                $('#trigger-id').modal();
+                //                $('#calendar').calEvents();
+                $('#ind-cont #nbill').removeClass('init');
+                //                if ($('#ind-cont').width() < 500) $('#ind-cont').find('.pie-desc').addClass('overlay');
+                //                $(window).resize( function() {
+                //                    if ($('body').children('#toast-container').length < 1)
+                //                        toastr.info('If content goes out of place when resizing, just hit refresh');
+                //                });
+            });
+            //]]>
+        </script>
+    </h:body>
+</html>

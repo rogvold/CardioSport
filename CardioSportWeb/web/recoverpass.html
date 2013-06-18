@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Flame Admin - Recover Password</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
+  <link rel="shortcut icon" href="favicon.png">
+  <!---CSS Files-->
+  <link rel="stylesheet" href="css/core.css">
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/ui.css">
+  <!---jQuery Files-->
+  <script src="js/jquery.js"></script>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="header">
+      <div id="logo"></div>
+      <h1>FLAME ADMIN - RECOVER PASSWORD</h1>
+    </div>
+    <div id="quick-lg" class="rec-psw">
+      <form id="lg-form" method="post" action="index.html">
+        <div id="field">
+          <p id="placeholder">Enter your e-mail address...</p>
+          <input type="text" id="quick-input">
+          <span class="icon">/<img src="img/spinner-sm.gif"></span>
+        </div>
+        <button type="submit" id="lg-submit" class="button inset submit">RECOVER</button>
+        <br class="clear">
+      </form>
+    </div>
+  </div>
+  <span id="load">
+    <img src="img/load.png"><img src="img/spinner.png" id="spinner">
+  </span>
+
+  <!---jQuery Code-->
+  <script type='text/javascript'>
+    $('#wrapper, #field span img').hide();
+    $('#load').fadeIn(400);
+    $(window).load( function() {
+      $('#load').fadeOut(400, function() {
+        $('#wrapper').fadeIn(600, function() {
+          $('#quick-input').focus();
+        });
+      });
+    });
+
+    $('#lg-form').submit( function(e) {
+      $('#field span').html('<img src="img/spinner-sm.gif">');
+      var pswlgt = $('#quick-input').val().length;
+      if(pswlgt < 1) {
+        e.preventDefault();
+        $('#placeholder').text('Please enter a valid address');
+        $('#field span').fadeOut(200, function() {
+          $(this).text('X').css('color','#e56969').fadeIn(100);
+          $('#quick-input').val('').focus();
+        });
+        $('#field').removeClass('success').addClass('error');
+      } else {
+        e.preventDefault();
+        var self = this;
+        window.setTimeout(function() {
+         self.submit();
+        }, 2000);
+        $('#field span').fadeOut(200, function() {
+          $(this).text('=').css('color','#9fbf2f').fadeIn(100)
+        });
+        $('#field').removeClass('error').addClass('success');
+        $('#quick-input').val('').blur();
+        $('#placeholder').text('The password reset e-mail was sent!');
+      }
+    });
+
+    $('#quick-input').keypress( function() {
+      $('#field span').text('/').css('color','#ccc');
+      $('#field').removeClass('error','success');
+      $('#placeholder').text('');
+    });
+    $('#quick-input').blur(function() {
+      $(this).filter(function() { return this.value == ""; })
+      .siblings('#placeholder').text('Enter your e-mail address...');
+    });
+  </script>
+</body>
+</html>
