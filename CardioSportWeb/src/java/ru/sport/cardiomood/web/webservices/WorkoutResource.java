@@ -220,8 +220,10 @@ public class WorkoutResource {
         try {
             Trainee t = UserUtils.getTraineeByEmailAndPassword(userMan, email, password);
             JsonInput input = (new Gson()).fromJson(data, JsonInput.class);
+            input.setWorkoutId(workMan.getChildCurrentWorkout(workoutId, t.getId()).getId());
             inMan.processInputData(input, t.getId());
-            throw new SportException("");
+            JsonResponse jr = new JsonResponse(null);
+            return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);
         }

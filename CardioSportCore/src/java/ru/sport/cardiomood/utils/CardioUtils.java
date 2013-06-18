@@ -21,7 +21,9 @@ public class CardioUtils {
 
     public static void checkNull(Object o) throws SportException {
         if (o == null) {
-            throw new SportException(CardioUtils.getCallingMethod() + " object is null");
+            SportException ex = new SportException(CardioUtils.getCallingMethod() + " object is null");
+            ex.printStackTrace();
+            throw ex;
         }
     }
     
