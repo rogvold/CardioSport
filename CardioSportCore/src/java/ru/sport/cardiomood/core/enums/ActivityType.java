@@ -4,7 +4,6 @@ package ru.sport.cardiomood.core.enums;
  *
  * @author rogvold
  */
-public enum WorkoutType {
-
-    PAUSE, USUAL
+public enum ActivityType {
+    USUAL, PAUSE
 }

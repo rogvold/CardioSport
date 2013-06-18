@@ -19,20 +19,7 @@
         <script src="js/workout.js"></script>
 
         <style type="text/css">
-            .workout_item{
-                height: 41px;
-                cursor: pointer;
-                line-height: 18px
-            }
 
-            .workout_item span{
-                position: absolute;
-                top: 12px;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                margin-left: 10px;
-            }
         </style>
 
     </h:head>
@@ -69,7 +56,38 @@
 
             <div id="content" class="dashboard-page"><!--BEGIN MAIN CONTENT-->
 
+
+                <h:panelGroup rendered="#{workoutBean.workouts ne null}">
+                    <div  class="box g6 row3 super-accordion" id="workouts_list">
+                        
+                        <div class="scroll has-scrollbar">
+                            <ul class="ul-grad scroll-cont" tabindex="0" style="right: -15px;">
+                                <c:forEach items="#{workoutBean.workouts}" var="work">
+                                    <li data-id="#{work.id}" class="workout_list_item" >
+                                        <span class="support-name">#{work.name} <b><span class="info_dur">#{work.duration}</span></b> мин.</span>
+                                        <button class="blue info_button info_workout_button" data-id="#{work.id}">инфо</button>
+                                        <p class="support-msg" style="margin-top: 10px;">
+                                            <span class="orange-text">#{work.description} </span>
+                                            <br/> Краткое описание: <br/>
+                                            <c:forEach items="#{work.activities}" var="act" varStatus="num">
+                                                #{num.count})#{act.name} (#{act.duration / 60000} мин.) 
+                                            </c:forEach>
+                                        </p>
+                                    </li>
+                                </c:forEach>
+                            </ul>
+                            <div class="pane" style="display: block;"><div class="slider" style="height: 213px; top: 22.12987012987013px;"></div></div></div>
+                    </div>
+                </h:panelGroup>
+
+                <div  class="box g6 row3 super-accordion" id="workout_info_accordion" >
+                </div>
+
+
+
                 <div class="g16">
+                    <h1 style="text-align: center; margin-top: 15px; color: rgb(153, 153, 153);">Создание новой тренировки</h1>
+
                     <span class="label input g3" style="color: rgb(153, 153, 153);">Название тренировки</span>
                     <input id="workout_name_input" class="g13" />
 
@@ -87,8 +105,9 @@
                             <ul class="ul-grad scroll-cont" tabindex="0" style="right: -15px;">
                                 <c:forEach items="#{activitiesPageBean.activities}" var="act">
                                     <li>
-                                        <span class="support-name">#{act.name}</span>
-                                        <span class="support-usr" style="margin-right: 120px;" ><b>#{act.duration}</b> мин.</span>
+                                        <span class="support-name">#{act.name} <b><span class="info_dur">#{act.duration}</span></b> мин.</span>
+                                        <button class="blue info_button">инфо</button>
+
                                         <button class="green add_button" style="float: right; margin-right: 30px;
                                                 margin-top: 7px;"  data-id="#{act.id}" >Добавить</button>
 
@@ -111,8 +130,8 @@
                     </div>
                 </h:panelGroup>
                 <button class="red" id="pop_button" style="float: left; margin-left: 0px; margin-top: 7px; display: none;" onclick="popActivity();" >Удалить</button>
-                <br class="clear" />
-                <button class="orange" id="create_button" style="float: left; margin-left: 0px; margin-top: 7px; display: block; display: none;" onclick="createWorkout();" >Создать</button>
+                <!--                <br class="clear" />-->
+                <button class="orange" id="create_button" style="float: right; margin-left: 0px; margin-top: 7px; margin-right: 15px; display: block; display: none;" onclick="createWorkout();" >Создать</button>
 
             </div><!--END MAIN CONTENT-->
 
@@ -136,7 +155,8 @@
                 //                sustainSession();
                 //                $('#calendar').calEvents();
                 $('#ind-cont #nbill').removeClass('init');
-                initActivitiesListHTML('support-tickets');
+                initActivitiesListHTML('#support-tickets');
+//                initActivitiesListHTML('#workouts_list');
                 //                if ($('#ind-cont').width() < 500) $('#ind-cont').find('.pie-desc').addClass('overlay');
                 //                $(window).resize( function() {
                 //                    if ($('body').children('#toast-container').length < 1)

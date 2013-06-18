@@ -104,6 +104,7 @@ public class UserManager implements UserManagerLocal {
 
     @Override
     public boolean checkLoginInfo(String email, String password) throws SportException {
+        System.out.println("checkLoginInfo: email/password = " + email+"/" + password);
         checkPassword(password);
         checkEmail(email);
         Query q = em.createQuery("select u from User u where u.email = :email and u.password = :password").setParameter("email", email).setParameter("password", password);

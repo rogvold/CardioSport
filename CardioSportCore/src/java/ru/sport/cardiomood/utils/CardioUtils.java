@@ -1,5 +1,7 @@
 package ru.sport.cardiomood.utils;
 
+import java.util.List;
+import javax.persistence.Query;
 import ru.sport.cardiomood.core.exceptions.SportException;
 
 /**
@@ -21,5 +23,21 @@ public class CardioUtils {
         if (o == null) {
             throw new SportException(CardioUtils.getCallingMethod() + " object is null");
         }
+    }
+    
+    public static void checkNulls(Object... obs) throws SportException {
+        for (Object o : obs){
+            checkNull(o);
+        }
+    }
+    
+    
+
+    public static Object getSingleResult(Query q) throws SportException {
+        List l = q.getResultList();
+        if (l == null || l.isEmpty()) {
+            return null;
+        }
+        return l.get(0);
     }
 }

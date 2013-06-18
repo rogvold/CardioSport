@@ -20,6 +20,8 @@ and open the template in the editor.
         <script src="js/flot.js"></script>
         <script src="js/functions.js"></script>
         <script src="js/auth.js"></script>
+        <script src="js/workout.js"></script>
+        <script src="js/trainees.js"></script>
     </h:head>
     <h:body>
 
@@ -57,20 +59,95 @@ and open the template in the editor.
                 <!--TABLE-->
 
                 <div id="tb-box" class="box g3">
-                    <table id="dash-tb" class="table">
+                    <table  class="table">
                         <thead>
-                            <tr><th>Имя Фамилия</th><th>Email/Пароль</th></tr>
+                            <tr><th>Имя Фамилия</th><th>Email/Пароль</th><th>Статус</th></tr>
                         </thead>
                         <tbody>
                             <c:forEach items="#{traineesListBean.trainees}" var="tr">
-                                <tr><td>#{tr.firstName} #{tr.lastName}</td><td>#{tr.email} / #{tr.password}</td>
+                                <tr><td>#{tr.firstName} #{tr.lastName}</td>
+                                    <td>#{tr.email} / #{tr.password}</td>
+                                    <td><span class="tag red">Red tag</span></td>
                                 </tr>
-
                             </c:forEach>
-
                         </tbody>
                     </table>
                 </div>
+
+
+                <c:forEach items="#{traineesListBean.trainees}" var="tr">
+                    <div class="box nav-box nav-btm  g4">
+                        <a href="sportsman.xhtml?id=#{tr.id}"><span class="box-ttl">#{tr.firstName} #{tr.lastName}</span></a>
+                        <div class="nav-body updown" style="height: 64.88888883590698px;">
+                            <div id="tab1_#{tr.id}" class="nav-item show">
+                                <span class="g8" >
+
+                                    <p>
+                                        <span class="tag  inline trainee_appointment_status_tag" data-id="#{tr.id}">
+                                            <c:if test="#{tr.currentWorkoutId eq null}">Не назначено</c:if>
+                                            <c:if test="#{tr.currentWorkoutId ne null}"><span style="color: lightblue;">назначено</span></c:if>
+                                        </span>
+                                    </p>
+                                    <br/>
+                                    <c:if test="#{workoutBean.canAppointWorkout(tr.id)}">
+                                        <p>
+                                            <span class="tag purple inline appointment_button" data-id="#{tr.id}" >
+                                                <c:if test="#{tr.currentWorkoutId eq null}">назначить</c:if>
+                                                <c:if test="#{tr.currentWorkoutId ne null}">переназначить</c:if>
+                                            </span>
+                                        </p>
+                                    </c:if>
+                                    <br/>
+
+                                    <p>
+                                        расст: <span class="tag  inline"><span class="distance_label" data-id="#{tr.id}" >N/A</span></span>
+                                    </p>
+                                </span>
+
+                                <span class="g8" style="margin: 0px;">
+                                    <p style="text-align: center; border: 1px dotted gray; border-top-left-radius: 5px; border-top-right-radius: 5px;">
+                                        <span style="color: firebrick;">пульс</span><br/>
+                                        <span class="pulse_label" data-id="#{tr.id}" style="font-size: 25px;">N/A</span>
+                                    </p>
+
+                                    <p style="text-align: center; border: 1px dotted gray; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">
+                                        скорость<br/>
+                                        <span class="speed_label" data-id="#{tr.id}" style="font-size: 25px;">N/A</span> <span style="font-size: 20px;" ></span>
+                                    </p>
+                                </span>
+                            </div>
+
+                            <div id="tab2_#{tr.id}" class="nav-item">
+                                email: #{tr.email}<br/><br/>
+                                пароль: #{tr.password}
+                            </div>
+
+                            <c:if test="#{tr.currentWorkoutId ne null}">
+                                <div id="tab3_#{tr.id}" class="nav-item">
+                                    <span class="orange-text">
+                                        #{workoutBean.workoutById(tr.currentWorkoutId).name}
+                                    </span>
+                                    <br/><br/>
+
+                                    #{workoutBean.shortWorkoutInfo(tr.currentWorkoutId)}
+
+                                </div>
+                            </c:if>
+
+
+                        </div>
+                        <ul class="nav">
+                            <li data-nav="#tab1_#{tr.id}" class="sel">Информация</li>
+                            <c:if test="#{tr.currentWorkoutId ne null}"><li data-nav="#tab3_#{tr.id}" >Тренировка</li></c:if>
+                            <li data-nav="#tab2_#{tr.id}" >Профиль</li>
+                        </ul>
+                    </div>
+                </c:forEach>
+
+                <br class="clear"/>
+
+
+                <br class="clear" />
 
                 <div id="inputs" class="box g6">
                     <h2 class="box-ttl">Регистрация спортсмена</h2>
@@ -84,7 +161,7 @@ and open the template in the editor.
                         <input type="text" id="firstName_input" class="g12" />
                         <span class="label input g4">Фамилия</span>
                         <input type="text" id="lastName_input" class="g12" />
-                        <span class="button btn-box btn-l" onclick="register_trainee();"  > Создать </span>
+                        <span class="button btn-box btn-l" style="padding: 5px;" onclick="register_trainee();"  > Создать </span>
 
 
 
@@ -92,9 +169,38 @@ and open the template in the editor.
                 </div>
 
             </div><!--END MAIN CONTENT-->
-
+            <button id="trigger-id" style="display: none;" data-modal="#mod-id ">Show modal</button>
             <!--MODAL WINDOWS-->
+            <div id="modal-ov">
+                <div class="modal" id="mod-id">
+                    <div class="mod-ttl"><h2>Выберите тренировку</h2></div>
+                    <div class="mod-body">
+                        <div  class="box row3 super-accordion" style="width: 100% !important;" id="workouts_list_dialog">
 
+                            <div class="scroll has-scrollbar">
+                                <ul class="ul-grad scroll-cont" tabindex="0" style="right: -15px;">
+                                    <c:forEach items="#{workoutBean.workouts}" var="work">
+                                        <li data-id="#{work.id}" class="workout_list_item" >
+                                            <span class="support-name">#{work.name}</span>
+
+                                            <button class="blue info_button info_workout_button" data-id="#{work.id}">i</button>
+                                            <button class="green appoint_workout_button_plus"  data-id="#{work.id}">+</button>
+
+                                            <p class="support-msg" style="margin-top: 10px;">
+                                                <span class="orange-text">#{work.description} </span>
+                                                <br/> Краткое описание: <br/>
+                                                <c:forEach items="#{work.activities}" var="act" varStatus="num">
+                                                    #{num.count})#{act.name} (#{act.duration / 60000} мин.) 
+                                                </c:forEach>
+                                            </p>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                                <div class="pane" style="display: block;"><div class="slider" style="height: 213px; top: 22.12987012987013px;"></div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div><!--END WRAPPER-->
 
@@ -108,7 +214,9 @@ and open the template in the editor.
             // LOAD FUNCTIONS
             //<![CDATA[
             $.fn.loadfns( function() {
+                loadAll();
                 sustainSession();
+                $('#trigger-id').modal();
                 //                $('#calendar').calEvents();
                 $('#ind-cont #nbill').removeClass('init');
                 //                if ($('#ind-cont').width() < 500) $('#ind-cont').find('.pie-desc').addClass('overlay');

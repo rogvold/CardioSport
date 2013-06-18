@@ -1,10 +1,12 @@
 package ru.sport.cardiomood.web.webservices;
 
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import ru.sport.cardiomood.core.constants.ResponseConstants;
 import ru.sport.cardiomood.core.exceptions.SportException;
@@ -41,11 +43,11 @@ public class AuthResource {
     }
 
     @POST
-    @Produces("application/json")
+    @Produces("application/json;charset=utf-8")
     @Path("check_existence")
     public String checkEmailExistence(@FormParam("email") String email) {
         try {
-            JsonResponse<String> jr = new JsonResponse<String>(ResponseConstants.OK, null, userMan.userExists(email) ? ResponseConstants.YES : ResponseConstants.NO);
+            JsonResponse<String> jr = new JsonResponse<String>(userMan.userExists(email) ? ResponseConstants.YES : ResponseConstants.NO);
             return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);
@@ -53,17 +55,17 @@ public class AuthResource {
     }
 
     @POST
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("check_data")
     public String checkUserAuthorisationData(@FormParam("email") String email, @FormParam("password") String password) {
         try {
             Trainee t = null;
             if (userMan.checkLoginInfo(email, password)) {
-                t = userMan.getTraineeByEmail(email);
-                t.setEmail(null);
-                t.setPassword(null);
+                Trainee tr = userMan.getTraineeByEmail(email);
+                t = new Trainee(email, null, tr.getFirstName(), tr.getLastName(), tr.getPhone());
+                t.setId(tr.getId());
             }
-            JsonResponse<Trainee> jr = new JsonResponse<Trainee>(ResponseConstants.OK, null, t);
+            JsonResponse<Trainee> jr = new JsonResponse<Trainee>(t);
             return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);
@@ -71,13 +73,13 @@ public class AuthResource {
     }
 
     @POST
-    @Produces("application/json")
+    @Produces("application/json;charset=utf-8")
     @Path("register/coach")
     public String registerUser(@Context HttpServletRequest req, @QueryParam("email") String email, @QueryParam("password") String password) {
         try {
             System.out.println("email = " + email + " password = " + password);
             userMan.registerCoach(email, password);
-            JsonResponse<String> jr = new JsonResponse<String>(ResponseConstants.OK, null, ResponseConstants.YES);
+            JsonResponse<String> jr = new JsonResponse<String>(ResponseConstants.YES);
             return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);
@@ -85,7 +87,7 @@ public class AuthResource {
     }
 
     @POST
-    @Produces("application/json")
+    @Produces("application/json;charset=utf-8")
     @Path("register/trainee")
     public String registerTrainee(@Context HttpServletRequest req,
             @QueryParam("email") String email,
@@ -95,7 +97,7 @@ public class AuthResource {
         try {
             Long coachId = SessionUtils.getUserId(req.getSession(false));
             coachMan.createTrainee(coachId, email, password, firstName, lastName);
-            JsonResponse<String> jr = new JsonResponse<String>(ResponseConstants.OK, null, ResponseConstants.YES);
+            JsonResponse<String> jr = new JsonResponse<String>(ResponseConstants.YES);
             return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);
@@ -103,14 +105,14 @@ public class AuthResource {
     }
 
     @POST
-    @Produces("application/json")
+    @Produces("application/json;charset=utf-8")
     @Path("login")
     public String login(@Context HttpServletRequest req, @QueryParam("email") String email, @QueryParam("password") String password) {
         try {
             JsonResponse<String> jr = null;
             if (userMan.checkLoginInfo(email, password)) {
                 SessionUtils.setSessionAttribute(req.getSession(true), SessionUtils.USER_ID_SESSION_ATTR, userMan.getUserIdByEmai(email));
-                jr = new JsonResponse<String>(ResponseConstants.OK, null, INDEX);
+                jr = new JsonResponse<String>(INDEX);
             } else {
                 throw new SportException("Incorrect pair email/pasword");
             }
@@ -121,16 +123,16 @@ public class AuthResource {
     }
 
     @POST
-    @Produces("application/json")
+    @Produces("application/json;charset=utf-8")
     @Path("logout")
     public String logout(@Context HttpServletRequest req) {
         SessionUtils.setSessionAttribute(req.getSession(false), SessionUtils.USER_ID_SESSION_ATTR, null);
-        JsonResponse<String> jr = new JsonResponse<String>(ResponseConstants.OK, null, GUEST);
+        JsonResponse<String> jr = new JsonResponse<String>(GUEST);
         return SecureResponseWrapper.getJsonResponse(jr);
     }
 
     @POST
-    @Produces("application/json")
+    @Produces("application/json;charset=utf-8")
     @Path("logged_in")
     public String isLoggedIn(@Context HttpServletRequest req) {
         String answer = "";
@@ -139,21 +141,35 @@ public class AuthResource {
         } else {
             answer = "0";
         }
-        JsonResponse<String> jr = new JsonResponse<String>(ResponseConstants.OK, null, answer);
+        JsonResponse<String> jr = new JsonResponse<String>(answer);
         return SecureResponseWrapper.getJsonResponse(jr);
     }
 
     @POST
-    @Produces("application/json")
+    @Produces("application/json;charset=utf-8")
     @Path("sustain")
     public String sustainSession(@Context HttpServletRequest req) {
 
         try {
             String answer = "1";
-            JsonResponse<String> jr = new JsonResponse<String>(ResponseConstants.OK, null, answer);
+            JsonResponse<String> jr = new JsonResponse<String>(answer);
             return SecureResponseWrapper.getJsonResponse(jr);
         } catch (Exception e) {
         }
         return null;
+    }
+
+    @POST
+    @Produces("application/json;charset=utf-8")
+    @Path("coach_trainees")
+    public String getCoachTrainees(@Context HttpServletRequest req) {
+        try {
+            Long coachId = SessionUtils.getUserId(req.getSession(false));
+            List<Trainee> list = coachMan.getTrainees(coachId);
+            JsonResponse<List<Trainee>> jr = new JsonResponse<List<Trainee>>(list);
+            return SecureResponseWrapper.getJsonResponse(jr);
+        } catch (SportException e) {
+            return SecureCardioExceptionWrapper.wrapException(e);
+        }
     }
 }

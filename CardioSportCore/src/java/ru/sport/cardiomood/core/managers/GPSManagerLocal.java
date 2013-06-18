@@ -14,5 +14,10 @@ public interface GPSManagerLocal {
 
     public List<GPSEntity> getWorkoutGPS(Long workoutId) throws SportException;
     
-    public void saveGPS(List<GPSEntity> gps) throws SportException;
+    public void saveGPS(List<GPSEntity> gps, Long workoutId) throws SportException;
+    
+    public Double getWorkoutDistance(Long workoutId) throws SportException;
+
+    public Double getCurrentSpeed(Long workoutId) throws SportException;
+
 }

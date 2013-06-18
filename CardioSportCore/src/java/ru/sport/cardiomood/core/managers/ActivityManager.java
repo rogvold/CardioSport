@@ -10,6 +10,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import ru.sport.cardiomood.core.exceptions.SportException;
 import ru.sport.cardiomood.core.jpa.Activity;
+import ru.sport.cardiomood.core.jpa.Workout;
 import ru.sport.cardiomood.utils.CardioUtils;
 
 /**
@@ -22,6 +23,7 @@ public class ActivityManager implements ActivityManagerLocal {
     @PersistenceContext(unitName = "CardioSportCorePU")
     EntityManager em;
 
+    
     @Override
     public Activity getActivityById(Long activityId) throws SportException {
         if (activityId == null) {
@@ -81,6 +83,18 @@ public class ActivityManager implements ActivityManagerLocal {
 //    @TransactionAttribute(TransactionAttributeType.NEVER)
     public List<Activity> getCoachActivities(Long coachId) throws SportException {
         CardioUtils.checkNull(coachId);
+        Query q = em.createQuery("select a from Activity a where a.coachId = :cId and a.workoutId is null").setParameter("cId", coachId);
+        List<Activity> list = q.getResultList();
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        return list;
+    }
+
+    @Override
+//    @TransactionAttribute(TransactionAttributeType.NEVER)
+    public List<Activity> getAllCoachActivities(Long coachId) throws SportException {
+        CardioUtils.checkNull(coachId);
         Query q = em.createQuery("select a from Activity a where a.coachId = :cId").setParameter("cId", coachId);
         List<Activity> list = q.getResultList();
         if (list == null || list.isEmpty()) {
@@ -91,7 +105,7 @@ public class ActivityManager implements ActivityManagerLocal {
 
     @Override
     public List<Activity> addActivitiesToWorkout(Long workoutId, List<Long> activities) throws SportException {
-        System.out.println("addActivitiesToWorkout: workoutId = " + workoutId +" ; activities = " + activities);
+        System.out.println("addActivitiesToWorkout: workoutId = " + workoutId + " ; activities = " + activities);
         if (activities == null) {
             return null;
         }
@@ -103,5 +117,12 @@ public class ActivityManager implements ActivityManagerLocal {
             list.add(nAct);
         }
         return list;
+    }
+
+    @Override
+    public Activity getChildActivity(Long activityId, Long traineeId) throws SportException {
+        CardioUtils.checkNull(activityId);
+        Query q = em.createQuery("select a from Activity a where a.parentActivityId = :aId and a.traineeId = :tId").setParameter("aId", activityId).setParameter("tId", traineeId);
+        return (Activity) CardioUtils.getSingleResult(q);
     }
 }

@@ -6,3 +6,4 @@ drop table friendlink;
 drop table gpsentity;
 drop table users;
 drop table workout;
+

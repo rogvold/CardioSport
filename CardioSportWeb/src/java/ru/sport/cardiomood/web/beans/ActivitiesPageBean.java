@@ -49,7 +49,7 @@ public class ActivitiesPageBean implements Serializable {
     }
 
     private Double getPrettyDouble(Double d) {
-        return Math.round(d * 100) / 100.0;
+        return Math.round(d * 10) / 10.0;
     }
 
     private void prepareActivities(List<Activity> list) {

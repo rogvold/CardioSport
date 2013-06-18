@@ -1,13 +1,13 @@
-
-
 package ru.sport.cardiomood.json.entity;
 
+import ru.sport.cardiomood.core.constants.ResponseConstants;
 
 /**
  *
  * @author Shaykhlislamov Sabir (email: sha-sabir@yandex.ru)
  */
 public class JsonResponse<T> {
+
     private Integer responseCode;
     private JsonError error;
     private T data;
@@ -18,6 +18,15 @@ public class JsonResponse<T> {
         this.data = object;
     }
 
+    public JsonResponse(T data) {
+        this.data = data;
+        this.error = null;
+        this.responseCode = ResponseConstants.OK;
+    }
+
+    public JsonResponse() {
+    }
+
     public JsonError getError() {
         return error;
     }
@@ -25,14 +34,13 @@ public class JsonResponse<T> {
     public void setError(JsonError error) {
         this.error = error;
     }
-    
 
-    public T getObject() {
+    public T getData() {
         return data;
     }
 
-    public void setObject(T object) {
-        this.data = object;
+    public void setData(T data) {
+        this.data = data;
     }
 
     public Integer getResponseCode() {
@@ -42,7 +50,4 @@ public class JsonResponse<T> {
     public void setResponseCode(Integer responseCode) {
         this.responseCode = responseCode;
     }
-    
-    
-    
 }

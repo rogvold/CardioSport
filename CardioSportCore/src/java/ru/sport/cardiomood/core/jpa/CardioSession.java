@@ -16,6 +16,7 @@ public class CardioSession implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Long workoutId;
+    @OrderColumn(name="index")
     @ElementCollection
     private List<Integer> rates;
     private Long startDate;

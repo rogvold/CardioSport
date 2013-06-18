@@ -11,5 +11,5 @@ import ru.sport.cardiomood.json.entity.JsonInput;
 @Local
 public interface InputDataManagerLocal {
 
-    public void processInputData(JsonInput input) throws SportException;
+    public void processInputData(JsonInput input, Long traineeId) throws SportException;
 }

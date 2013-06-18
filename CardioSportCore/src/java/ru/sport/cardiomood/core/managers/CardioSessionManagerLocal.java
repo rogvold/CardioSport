@@ -16,4 +16,7 @@ public interface CardioSessionManagerLocal {
 
     public void addRates(Long workoutId, Long timestamp, List<Integer> rates) throws SportException;
     
+    public Integer getCurrentPulse(Long workoutId) throws SportException;
+
+    
 }

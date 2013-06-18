@@ -38,7 +38,7 @@ public class ActivityResource {
     }
 
     @POST
-    @Produces("application/json")
+    @Produces("application/json;charset=utf-8")
     @Path("create_activity")
     public String createActivity(@Context HttpServletRequest req, @QueryParam("minHeartRate") Integer minHeartRate,
             @QueryParam("maxHeartRate") Integer maxHeartRate,
@@ -60,12 +60,27 @@ public class ActivityResource {
     }
 
     @POST
-    @Produces("application/json")
+    @Produces("application/json;charset=utf-8")
     @Path("activities_list")
     public String initAllActivities(@Context HttpServletRequest req) {
         try {
             Long coachId = SessionUtils.getUserId(req.getSession(false));
             List<Activity> list = ActivityUtils.cloneActivitiesList(actMan.getCoachActivities(coachId));
+            list = ActivityUtils.prepareActivities(list);
+            JsonResponse<List<Activity>> jr = new JsonResponse<List<Activity>>(ResponseConstants.OK, null, list);
+            return SecureResponseWrapper.getJsonResponse(jr);
+        } catch (SportException e) {
+            return SecureCardioExceptionWrapper.wrapException(e);
+        }
+    }
+
+    @POST
+    @Produces("application/json;charset=utf-8")
+    @Path("all_activities_list")
+    public String getAllCoachActivities(@Context HttpServletRequest req) {
+        try {
+            Long coachId = SessionUtils.getUserId(req.getSession(false));
+            List<Activity> list = ActivityUtils.cloneActivitiesList(actMan.getAllCoachActivities(coachId));
             list = ActivityUtils.prepareActivities(list);
             JsonResponse<List<Activity>> jr = new JsonResponse<List<Activity>>(ResponseConstants.OK, null, list);
             return SecureResponseWrapper.getJsonResponse(jr);

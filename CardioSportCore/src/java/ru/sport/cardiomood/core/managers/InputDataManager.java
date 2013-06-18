@@ -3,6 +3,7 @@ package ru.sport.cardiomood.core.managers;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import ru.sport.cardiomood.core.exceptions.SportException;
+import ru.sport.cardiomood.core.jpa.Workout;
 import ru.sport.cardiomood.json.entity.JsonInput;
 
 /**
@@ -16,13 +17,17 @@ public class InputDataManager implements InputDataManagerLocal {
     CardioSessionManagerLocal cardMan;
     @EJB
     GPSManagerLocal gpsMan;
+    @EJB
+    WorkoutManagerLocal workMan;
 
     @Override
-    public void processInputData(JsonInput input) throws SportException {
+    public void processInputData(JsonInput input, Long traineeId) throws SportException {
         if (input == null) {
             throw new SportException("input is null");
         }
-        cardMan.addRates(input.getWorkoutId(), input.getTimestamp(), input.getRr());
-        gpsMan.saveGPS(input.getGeo());
+        Workout real = workMan.getChildCurrentWorkout(input.getWorkoutId(), traineeId);
+        //TODO
+        cardMan.addRates(real.getId(), input.getTimestamp(), input.getRr());
+        gpsMan.saveGPS(input.getGeo(), real.getId());
     }
 }

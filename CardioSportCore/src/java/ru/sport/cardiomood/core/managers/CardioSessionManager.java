@@ -49,4 +49,15 @@ public class CardioSessionManager implements CardioSessionManagerLocal {
         c.setRates(list);
         em.merge(c);
     }
+
+    @Override
+    public Integer getCurrentPulse(Long workoutId) throws SportException {
+        CardioSession cs = getCardioSessionByWorkoutId(workoutId);
+        if (cs.getRates() == null || cs.getRates().isEmpty()) {
+            return 0;
+        } else {
+            List<Integer> rates = cs.getRates();
+            return (int) Math.floor(60000 / rates.get(rates.get(rates.size() - 1)));
+        }
+    }
 }

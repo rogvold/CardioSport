@@ -23,6 +23,11 @@ public interface ActivityManagerLocal {
     public Activity cloneActivity(Activity oldActivity, Long workoutId, Integer orderNumber) throws SportException;
 
     public List<Activity> getCoachActivities(Long coachId) throws SportException;
+    
+    public List<Activity> getAllCoachActivities(Long coachId) throws SportException;
 
     public List<Activity> addActivitiesToWorkout(Long workoutId, List<Long> activities) throws SportException;
+    
+    public Activity getChildActivity(Long activityId, Long traineeId) throws SportException;
+
 }

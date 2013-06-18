@@ -3,6 +3,7 @@ package ru.sport.cardiomood.core.jpa;
 import java.io.Serializable;
 import javax.persistence.*;
 import ru.sport.cardiomood.core.enums.ActivityStatus;
+import ru.sport.cardiomood.core.enums.ActivityType;
 
 /**
  *
@@ -30,6 +31,9 @@ public class Activity implements Serializable {
     private Integer orderNumber;
     private ActivityStatus status;
     private Long coachId;
+    private Long parentActivityId;
+    @Enumerated(EnumType.STRING)
+    private ActivityType type;
 
     public Activity() {
     }
@@ -47,6 +51,15 @@ public class Activity implements Serializable {
         this.maxSpeed = maxSpeed;
         this.coachId = coachId;
         this.status = ActivityStatus.NEW;
+        this.type = ActivityType.USUAL;
+    }
+
+    public Long getParentActivityId() {
+        return parentActivityId;
+    }
+
+    public void setParentActivityId(Long parentActivityId) {
+        this.parentActivityId = parentActivityId;
     }
 
     public ActivityStatus getStatus() {
@@ -159,6 +172,14 @@ public class Activity implements Serializable {
 
     public void setCoachId(Long coachId) {
         this.coachId = coachId;
+    }
+
+    public ActivityType getType() {
+        return type;
+    }
+
+    public void setType(ActivityType type) {
+        this.type = type;
     }
 
     @Override
