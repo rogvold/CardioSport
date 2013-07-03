@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <meta charset="utf-8"/>
+        <title>FA - Dashboard</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
+        <link rel="shortcut icon" href="favicon.png"/>
+        <!---CSS Files-->
+        <link rel="stylesheet" href="css/core.css"/>
+        <link rel="stylesheet" href="css/style.css"/>
+
+
+
+        <!--        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>-->
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        <!---jQuery Files-->
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/inputs.js"></script>
+        <script src="js/flot.js"></script>
+        <script src="js/functions.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/workout.js"></script>
+        <script src="js/trainees.js"></script>
+        <script src="js/gmaps.js"></script>
+
+    </h:head>
+    <h:body>
+
+        <div id="wrapper">
+
+            <!--USER PANEL-->
+
+            <div id="usr-panel">
+                <div class="av-overlay"></div>
+                <img src="img/avatars/nick.jpg" id="usr-av"/>
+                <div id="usr-info">
+                    <span id="usr-name">Nick Halden</span><span id="usr-role">Administrator</span>
+                    <button id="usr-btn" class="orange" data-modal="#usr-mod #mod-home">User CP</button>
+                </div>
+            </div>
+
+            <!--NAVIGATION-->
+
+            <div id="nav">
+                <ul>
+                    <li><a href="workouts.xhtml"></a><span class="icon">&lt;</span>трени ровки</li>
+                    <li><a href="activities.xhtml"></a><span class="icon">F</span>актив ности</li>
+                    <li ><a href="trainees.xhtml"></a><span class="icon">H</span>Спорт смены</li>
+                    <!--                    <li class="active"><span class="icon">G</span>следить</li>-->
+                    <li><a href="extras.html"></a><span class="icon">S</span>Extras</li>
+                    <li><a href="grid.html"></a><span class="icon">N</span>Grid</li>
+                    <li data-modal="#usr-mod #mod-set" id="set-btn"><span class="icon">)</span>Settings</li>
+                    <li id="logout"><a href="index.html"></a><span class="icon icon-grad">B</span>Log Out</li>
+                </ul>
+                <br class="clear"/>
+            </div>
+
+            <div id="content" class="dashboard-page"><!--BEGIN MAIN CONTENT-->
+
+                <!--TABLE-->
+
+                <div id="" class="box g6" style="padding: 10px;">
+                    #{workoutHistoryBean.trainee.firstName} #{workoutHistoryBean.trainee.lastName}
+                    <span class="tag blue  inline" id="status_tag" data-id="#{workoutHistoryBean.traineeId}">
+                        <c:if test="#{workoutHistoryBean.trainee.currentWorkoutId eq null}">Не назначено</c:if>
+                        <c:if test="#{workoutHistoryBean.trainee.currentWorkoutId ne null}"><span style="color: lightblue;">назначено</span></c:if>
+                    </span>
+                    <!--                    <span class="blue tag inline"  >назначена тренировка</span>-->
+                </div>
+
+                <br class="clear" />
+                <br class="clear" />
+                <!--                <h1 style="text-align: center; color: rgb(153, 153, 153);">
+                                    Тренировка
+                                </h1>-->
+
+                <span class="g8">
+
+                    <br/>
+                    <c:forEach items="#{workoutHistoryBean.workouts}" var="w" varStatus="st">
+                        <c:if test="#{st.count > 1}">
+                            <div class="g14">
+                                <div class="icon icon-grad down" style="font-size: 50px; height: 50px; display: block; color: #4b90db; margin: 0 auto; width: 50px;">]</div>
+                            </div>
+                        </c:if>
+
+                        <div class="box g14" style="position: relative;">
+                            <div class="box-ttl1" style="cursor: pointer;" onclick="$(this).next().toggle()">
+                                <span class="g6 nomargintop"> 
+                                    #{w.name}
+                                </span>
+                                <span class="g6 nomargintop">
+                                    #{utilsBean.round(w.duration / 60000)} мин.
+                                </span>
+                                <span class="tag inline green" style="float: right;margin-top: -7px; margin-bottom: -4px;">
+                                    <a style="color: rgb(153,153,153)" href="historyDetails.xhtml?workoutId=#{w.id}" >подробнее</a>
+                                </span>
+                            </div>
+                            <div class="box-body" style="display: none;" >
+                                <br/>                               
+                                #{w.description}
+                                <ul style="margin-top: 20px;">
+                                    <c:forEach items="#{w.activities}" var="a" >
+                                        <li title="#{a.description}"><span class="g8">#{a.name}</span> <span class="orange-text g8">#{utilsBean.round(a.duration / 60000)} мин.</span>
+
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </span>
+
+                <br class="clear"/> 
+                <div id="map" ></div>
+                <!--                <div class="g16" id="map">
+                
+                                </div>-->
+
+            </div><!--END MAIN CONTENT-->
+            <!--            </div>-->
+
+        </div><!--END WRAPPER-->
+
+        <span id="load">
+            <img src="img/load.png"/><img src="img/spinner.png" id="spinner"/>
+        </span>
+
+        <!---jQuery Code-->
+        <script type='text/javascript'>
+
+            // LOAD FUNCTIONS
+            //<![CDATA[
+            $.fn.loadfns( function() {
+                
+                //                loadAll();
+                //                sustainSession();
+                $('#trigger-id').modal();
+                //                $('#calendar').calEvents();
+                $('#ind-cont #nbill').removeClass('init');
+
+            });
+            //]]>
+        </script>
+    </h:body>
+</html>

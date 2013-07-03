@@ -23,7 +23,7 @@ public class GPSManager implements GPSManagerLocal {
     @Override
     public List<GPSEntity> getWorkoutGPS(Long workoutId) throws SportException {
         CardioUtils.checkNull(workoutId);
-        Query q = em.createQuery("select g from GPSEntity g where g.workoutId = : wId").setParameter("wId", workoutId);
+        Query q = em.createQuery("select g from GPSEntity g where g.workoutId = :wId").setParameter("wId", workoutId);
         List<GPSEntity> list = q.getResultList();
         if (list == null || list.isEmpty()) {
             return new ArrayList();

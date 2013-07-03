@@ -22,6 +22,29 @@ and open the template in the editor.
         <script src="js/auth.js"></script>
         <script src="js/workout.js"></script>
         <script src="js/trainees.js"></script>
+
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        <script src="js/gmaps.js"></script>
+
+        <style type="text/css">
+            #map{
+                height: 600px !important; 
+                width: calc(90% - 50px) !important;
+                z-index: 10000000;
+                position: relative;
+                display: block;
+                margin: 0 auto;
+                margin-top: 30px;
+            }
+
+            .popin {
+                background: #fff;
+                padding: 15px;
+                box-shadow: 0 0 20px #999;
+                border-radius: 2px;
+            }
+        </style>
+
     </h:head>
     <h:body>
 
@@ -64,6 +87,9 @@ and open the template in the editor.
                         <c:if test="#{sportsmanBean.trainee.currentWorkoutId eq null}">Не назначено</c:if>
                         <c:if test="#{sportsmanBean.trainee.currentWorkoutId ne null}"><span style="color: lightblue;">назначено</span></c:if>
                     </span>
+                    <span style="float: right;">
+                        <a style="color: white;" href="history.xhtml?id=#{sportsmanBean.traineeId}"> назад </a>
+                    </span>
                     <!--                    <span class="blue tag inline"  >назначена тренировка</span>-->
                 </div>
 
@@ -92,7 +118,7 @@ and open the template in the editor.
                                     #{a.name}
                                 </span>
                                 <span class="g6 nomargintop">
-                                    #{a.duration / 60000} мин.
+                                    #{utilsBean.round(a.duration / 60000)} мин.
                                 </span>
                             </div>
                             <div class="box-body" style="display: none;" >
@@ -125,32 +151,62 @@ and open the template in the editor.
 
                         <div class="box g14" style="position: relative;">
                             <div class="box-ttl1" style="cursor: pointer;" onclick="$(this).next().toggle()">
-                                <span class="g6 nomargintop"> 
-                                    #{a.name}
-                                </span>
+                                <c:if test="#{!utilsBean.pauseType(a)}">
+                                    <span class="g6 nomargintop"> 
+                                        #{a.name}
+                                    </span>
+                                </c:if>
+                                <c:if test="#{utilsBean.pauseType(a)}">
+                                    <span class="g6 nomargintop " style="color: green;" > 
+                                        Пауза
+                                    </span>
+                                </c:if>
+
                                 <span class="g6 nomargintop">
-                                    #{a.duration / 60000} мин.
+                                    #{utilsBean.round(a.duration / 60000)} мин.
                                 </span>
+
+                                <span class="g3 nomargintop "  > 
+                                    <c:if test="#{utilsBean.activityIsCompleted(a)}">
+                                        <span style="text-decoration: line-through;" >Завершено</span>
+                                    </c:if>
+                                    <c:if test="#{utilsBean.activityIsInProgress(a)}">
+                                        В процессе
+                                    </c:if>
+                                </span>
+
                             </div>
                             <div class="box-body" style="display: none;" >
-                                <br/>                               
+                                <br/>
                                 #{a.description}
-                                <ul style="margin-top: 20px;">
-                                    <li><span class="g8">Минимальный пульс</span> <span class="orange-text g8">#{a.minHeartRate} уд/мин</span></li>
-                                    <li><span class="g8">Максимальный пульс</span> <span class="orange-text g8">#{a.maxHeartRate} уд/мин</span></li>
-                                    <li><span class="g8">Минимальная скорость</span> <span class="orange-text g8">#{sportsmanBean.round(a.minSpeed * 3.6)} км/ч</span></li>
-                                    <li><span class="g8">Максимальная скорость</span> <span class="orange-text g8">#{sportsmanBean.round(a.maxSpeed * 3.6)} км/ч</span></li>
-                                    <li><span class="g8">Минимальное напряжение</span> <span class="orange-text g8">#{a.minTension}</span></li>
-                                    <li><span class="g8">Максимальное напряжение</span> <span class="orange-text g8">#{a.maxTension}</span></li>
-                                </ul>
+                                <div id="plot#{a.id}" class="g16 myPlot" style="height: 200px; width: 100%;" >
+
+                                </div>
+                                <!--                                <ul style="margin-top: 20px;">
+                                                                    <li><span class="g8">Минимальный пульс</span> <span class="orange-text g8"> #{a.minHeartRate} уд/мин</span></li>
+                                                                    <li><span class="g8">Максимальный пульс</span> <span class="orange-text g8"> #{a.maxHeartRate} уд/мин</span></li>
+                                                                    <li><span class="g8">Минимальная скорость</span> <span class="orange-text g8"> #{sportsmanBean.round(a.minSpeed * 3.6)} км/ч</span></li>
+                                                                    <li><span class="g8">Максимальная скорость</span> <span class="orange-text g8"> #{sportsmanBean.round(a.maxSpeed * 3.6)} км/ч</span></li>
+                                                                    <li><span class="g8">Минимальное напряжение</span> <span class="orange-text g8"> #{a.minTension}</span></li>
+                                                                    <li><span class="g8">Максимальное напряжение</span> <span class="orange-text g8"> #{a.maxTension}</span></li>
+                                                                </ul>-->
                             </div>
                         </div>
                     </c:forEach>
                 </span>
 
+                <br class="clear"/> 
+                <h3 style="text-align: center; margin-top: 30px; margin-bottom: 30px; color: rgb(153, 153, 153);" class="g16">
+                    Перемещения за тренировку
+                </h3>
+                <!--                <div class="popin">-->
+
+                <div id="map" class="popin" ></div>
+                <!--                </div>-->
+
 
             </div><!--END MAIN CONTENT-->
-<!--            </div>-->
+            <!--            </div>-->
 
         </div><!--END WRAPPER-->
 
@@ -164,7 +220,9 @@ and open the template in the editor.
             // LOAD FUNCTIONS
             //<![CDATA[
             $.fn.loadfns( function() {
-//                loadAll();
+                initRRPlots();
+                getGps();
+                //                loadAll();
                 sustainSession();
                 $('#trigger-id').modal();
                 //                $('#calendar').calEvents();

@@ -1,6 +1,7 @@
 package ru.sport.cardiomood.core.managers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
@@ -318,10 +319,10 @@ public class WorkoutManager implements WorkoutManagerLocal {
         a.setType(ActivityType.USUAL);
         a.setStatus(ActivityStatus.IN_PROGRESS);
         a.setParentActivityId(activityId);
-        
+
 //        System.out.println("starting activity... setting orderNumber = " + getRealActivitiesAmount(workoutId, traineeId) );
         a.setOrderNumber(getRealActivitiesAmount(workoutId, traineeId) - 1);
-        
+
         return em.merge(a);
     }
 
@@ -369,6 +370,7 @@ public class WorkoutManager implements WorkoutManagerLocal {
 
         //completing paused activity
         currentPause.setDuration(duration);
+        currentPause.setName("пауза");
         currentPause.setStatus(ActivityStatus.COMPLETED);
         currentPause = em.merge(currentPause);
 
@@ -384,7 +386,12 @@ public class WorkoutManager implements WorkoutManagerLocal {
     public void stopActivity(Long workoutId, Long traineeId, Long activityId, Long duration) throws SportException {
         Workout realWorkout = getChildCurrentWorkout(workoutId, traineeId);
         Activity lastInProgress = getLastRealActivity(realWorkout.getId(), traineeId, ActivityStatus.IN_PROGRESS);
-        lastInProgress.setDuration(duration);
+
+        Activity parentActivity = acMan.getActivityById(lastInProgress.getParentActivityId());
+
+        lastInProgress.setDuration((duration == null || duration.equals(0L)) ? ((parentActivity.getDuration() == null) ? 0 : parentActivity.getDuration()) : duration);
+
+
         lastInProgress.setStatus(ActivityStatus.COMPLETED);
         em.merge(lastInProgress);
     }
@@ -414,5 +421,26 @@ public class WorkoutManager implements WorkoutManagerLocal {
             return null;
         }
         return list;
+    }
+
+    @Override
+    public List<JsonWorkout> getHistoryWorkouts(Long traineeId) throws SportException {
+        System.out.println("trying to get history workouts for traineeId = " + traineeId);
+        Query q = em.createQuery("select w from Workout w where w.traineeId = :tId"
+                + " and ( w.status  = :st1 "
+                + " or w.status = :st2 "
+                + " or w.status = :st3 ) order by w.id desc ").setParameter("tId", traineeId).setParameter("st1", WorkoutStatus.FINISHED).setParameter("st2", WorkoutStatus.IN_PROGRESS).setParameter("st3", WorkoutStatus.PAUSED);
+        List<Workout> list = q.getResultList();
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        List<JsonWorkout> retList = new ArrayList();
+        for (Workout w : list) {
+            List<Activity> as = getWorkoutActivities(w.getId());
+            JsonWorkout jw = new JsonWorkout(w.getId(), as, w.getName(), w.getDescription(), w.getStartDate().getTime(), getTotalDuration(as));
+            retList.add(jw);
+        }
+
+        return retList;
     }
 }

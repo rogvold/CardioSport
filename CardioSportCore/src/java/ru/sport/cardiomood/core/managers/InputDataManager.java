@@ -27,6 +27,7 @@ public class InputDataManager implements InputDataManagerLocal {
         }
         Workout real = workMan.getChildCurrentWorkout(input.getWorkoutId(), traineeId);
         //TODO
+        System.out.println("processInputData: traineeId = " + traineeId + " ; wId = ");
         cardMan.addRates(real.getId(), input.getTimestamp(), input.getRr());
         gpsMan.saveGPS(input.getGeo(), real.getId());
     }

@@ -214,3 +214,151 @@ function getAllWorkouts(){
         }
     });
 }
+
+function drawAllRRPlots(workoutId){
+    $.ajax({
+        url: "/CardioSportWeb/resources/workout/activity_sessions",
+        data: {
+            workoutId : workoutId  
+        },
+        type: "POST",
+        success: function(data){
+            de = data;
+            drawAllActivityPlots(data.data);
+        }
+    });
+}
+
+function initRRPlots(){
+    drawAllRRPlots(getParameter("workoutId"));
+}
+
+function getPLotPointsFromJsonSession(session){
+    var t = session.start;
+    console.log('session');
+    console.log(session);
+    var mas = new Array(session.rates.length);
+    for (var i in session.rates){
+        mas[i] = new Array(2);
+        mas[i][0] = t;
+        mas[i][1] = 60000.0 / session.rates[i];
+        t+=session.rates[i];
+    }
+    //    console.log('mas');
+    //    console.log(mas);
+    return mas;
+}
+
+function getParameter(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+    results = regex.exec(location.search);
+    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function drawAllActivityPlots(sessions){
+    for (var i in sessions){
+        drawPlot('plot' + sessions[i].activityId , getPLotPointsFromJsonSession(sessions[i]), sessions[i].minPulse, sessions[i].maxPulse);
+    }
+}
+
+function drawPlot(divId, points, minPulse, maxPulse){
+    console.log('points');
+    console.log(points);
+    if (points == undefined || points.length < 2){
+        $('#'+divId).hide();
+        return;
+    }else{
+        $('#'+divId).parent('div').show();
+    }
+    
+    var minData = [[points[0][0],minPulse], [points[points.length - 1][0],minPulse]];
+    var maxData = [[points[0][0],maxPulse], [points[points.length - 1][0],maxPulse]];
+    
+    var options = {
+        series: {
+            shadowSize: 0
+            
+        },
+        yaxis: {
+            color: '#92d5ea'
+        },
+        xaxis: {
+            mode: "time",
+            color: '#92d5ea'
+        },
+        grid: {
+            borderWidth: 0
+        } 
+    };
+    
+    plot2 = $.plot($("#"+divId),
+        [   {
+            data: points, 
+            lines: {
+                show:true
+                
+            }
+        },{
+            data: minData,
+            color : '#CF3300',
+            lines: {
+                show:true
+                
+            }
+        },{
+            data: maxData, 
+            color : '#CF3300',
+            lines: {
+                show:true
+            }
+        } ], options);
+}
+
+function convertGps(gpsList){
+    var mas = new Array(gpsList.length);
+    for (var i in gpsList){
+        mas[i] = new Array(2);
+        mas[i][0] = gpsList[i].latitude;
+        mas[i][1] = gpsList[i].longitude;
+    }
+    return mas;
+}
+
+function drawGoogleMap(divId, points){
+    if (points == undefined || points.length == 0){
+        $('#'+divId).hide();
+        return;
+    }
+    myMap = new GMaps({
+        div: '#'+divId,
+        lat: points[0][0],
+        lng: points[0][1],
+        zoom: 18,
+        scaleControl: false
+    });
+                    
+    myMap.drawPolyline({
+        path: points,
+        strokeColor: '',
+        strokeOpacity: 0.8,
+        strokeWeight: 2
+    });
+
+}
+
+function getGps(){
+    var workoutId = getParameter("workoutId");
+    console.log('loading gps');
+    $.ajax({
+        url: "/CardioSportWeb/resources/gps/gps",
+        data: {
+            workoutId : workoutId  
+        },
+        type: "POST",
+        success: function(data){
+            de = data;
+            drawGoogleMap('map', convertGps(data.data));
+        }
+    });
+}

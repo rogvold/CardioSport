@@ -14,15 +14,8 @@ import ru.sport.cardiomood.core.exceptions.SportException;
 import ru.sport.cardiomood.core.jpa.Activity;
 import ru.sport.cardiomood.core.jpa.Trainee;
 import ru.sport.cardiomood.core.jpa.Workout;
-import ru.sport.cardiomood.core.managers.ActivityManagerLocal;
-import ru.sport.cardiomood.core.managers.CoachManagerLocal;
-import ru.sport.cardiomood.core.managers.InputDataManagerLocal;
-import ru.sport.cardiomood.core.managers.UserManagerLocal;
-import ru.sport.cardiomood.core.managers.WorkoutManagerLocal;
-import ru.sport.cardiomood.json.entity.JsonInput;
-import ru.sport.cardiomood.json.entity.JsonResponse;
-import ru.sport.cardiomood.json.entity.JsonUserState;
-import ru.sport.cardiomood.json.entity.JsonWorkout;
+import ru.sport.cardiomood.core.managers.*;
+import ru.sport.cardiomood.json.entity.*;
 import ru.sport.cardiomood.utils.CardioUtils;
 import ru.sport.cardiomood.utils.UserUtils;
 import ru.sport.cardiomood.web.json.SecureCardioExceptionWrapper;
@@ -50,6 +43,8 @@ public class WorkoutResource {
     UserManagerLocal userMan;
     @EJB
     InputDataManagerLocal inMan;
+    @EJB
+    CardioSessionManagerLocal cardMan;
 
     private class JWorkout {
 
@@ -119,6 +114,20 @@ public class WorkoutResource {
             CardioUtils.checkNull(traineeId);
             workMan.appointWorkout(traineeId, workoutId);
             JsonResponse<String> jr = new JsonResponse<String>(ResponseConstants.YES);
+            return SecureResponseWrapper.getJsonResponse(jr);
+        } catch (SportException e) {
+            return SecureCardioExceptionWrapper.wrapException(e);
+        }
+    }
+
+    @POST
+    @Produces("application/json;charset=utf-8")
+    @Path("activity_sessions")
+    public String getActivityCardioSession(@Context HttpServletRequest req, @FormParam("workoutId") Long workoutId) {
+        try {
+            CardioUtils.checkNull(workoutId);
+            List<JsonSession> sessions = cardMan.getWorkoutActivitiesSessions(workoutId);
+            JsonResponse<List<JsonSession>> jr = new JsonResponse<List<JsonSession>>(sessions);
             return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);
@@ -212,21 +221,29 @@ public class WorkoutResource {
         }
     }
 
-
     @POST
     @Produces("application/json;charset=utf-8")
     @Path("send_data")
     public String sendData(@FormParam("email") String email, @FormParam("password") String password, @FormParam("workoutId") Long workoutId, @FormParam("data") String data) {
         try {
+            System.out.println("sendData: workoutId = " + workoutId);
             Trainee t = UserUtils.getTraineeByEmailAndPassword(userMan, email, password);
             JsonInput input = (new Gson()).fromJson(data, JsonInput.class);
+            
+            System.out.println("traineeId = " + t.getId());
+            
+//            Workout realW = workMan.getChildCurrentWorkout(workoutId, t.getId());
+//            System.out.println("realW = " + realW);
+            
+            System.out.println("no, wId = " + workMan.getChildCurrentWorkout(workoutId, t.getId()).getId());
+            input.setWorkoutId(workoutId);
             inMan.processInputData(input, t.getId());
-            throw new SportException("");
+            JsonResponse jr = new JsonResponse(null);
+            return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);
         }
     }
-
 
     @POST
     @Produces("application/json;charset=utf-8")
@@ -242,7 +259,6 @@ public class WorkoutResource {
         }
     }
 
-
     @POST
     @Produces("application/json;charset=utf-8")
     @Path("start_activity")
@@ -257,12 +273,12 @@ public class WorkoutResource {
         }
     }
 
-
     @POST
     @Produces("application/json;charset=utf-8")
     @Path("stop_activity")
     public String stopActivity(@FormParam("email") String email, @FormParam("password") String password, @FormParam("workoutId") Long workoutId, @FormParam("activityId") Long activityId, @FormParam("duration") Long duration) {
         try {
+            System.out.println("stop_activity: duration = " + duration);
             Trainee t = UserUtils.getTraineeByEmailAndPassword(userMan, email, password);
             workMan.stopActivity(workoutId, t.getId(), activityId, duration);
             JsonResponse jr = new JsonResponse<Long>(null);
@@ -271,7 +287,6 @@ public class WorkoutResource {
             return SecureCardioExceptionWrapper.wrapException(e);
         }
     }
-
 
     @POST
     @Produces("application/json;charset=utf-8")
@@ -283,7 +298,6 @@ public class WorkoutResource {
             return SecureCardioExceptionWrapper.wrapException(e);
         }
     }
-
 
     @POST
     @Produces("application/json;charset=utf-8")
@@ -312,7 +326,6 @@ public class WorkoutResource {
             return SecureCardioExceptionWrapper.wrapException(e);
         }
     }
-
 
     @POST
     @Produces("application/json;charset=utf-8")

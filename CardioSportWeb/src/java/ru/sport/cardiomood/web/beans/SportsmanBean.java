@@ -8,6 +8,7 @@ import javax.faces.bean.ViewScoped;
 import ru.sport.cardiomood.core.exceptions.SportException;
 import ru.sport.cardiomood.core.jpa.Activity;
 import ru.sport.cardiomood.core.jpa.Trainee;
+import ru.sport.cardiomood.core.jpa.Workout;
 import ru.sport.cardiomood.core.managers.CoachManagerLocal;
 import ru.sport.cardiomood.core.managers.UserManagerLocal;
 import ru.sport.cardiomood.core.managers.WorkoutManagerLocal;
@@ -33,6 +34,7 @@ public class SportsmanBean {
     private Long coachId;
     private JsonWorkout planedWorkout;
     private List<Activity> realActivities;
+    private Long workoutId;
 
     private Long getLong(String paramName) {
         String s = (new JSFHelper()).getExternalContext().getRequestParameterMap().get(paramName);
@@ -44,7 +46,11 @@ public class SportsmanBean {
 
     @PostConstruct
     private void init() throws SportException {
-        this.traineeId = getLong("id");
+        this.workoutId = getLong("workoutId");
+        Workout w = workMan.getWorkoutById(workoutId);
+        this.traineeId = w.getTraineeId();
+        this.trainee = userMan.getTraineeById(traineeId);
+
         this.coachId = (new JSFHelper()).getUserId();
         if (coachId == null) {
             (new JSFHelper()).redirect("login");
@@ -55,9 +61,9 @@ public class SportsmanBean {
             (new JSFHelper()).redirect("forbidden");
             return;
         }
-        this.trainee = userMan.getTraineeById(traineeId);
+        this.realActivities = workMan.getWorkoutActivities(workoutId);
         this.planedWorkout = (this.trainee.getCurrentWorkoutId() == null) ? null : workMan.getJsonWorkout(this.trainee.getCurrentWorkoutId());
-        this.realActivities = workMan.getCurrentRealActivities(traineeId);
+//        this.realActivities = workMan.getCurrentRealActivities(traineeId);
     }
 
     public Long getCoachId() {
@@ -98,6 +104,14 @@ public class SportsmanBean {
 
     public void setRealActivities(List<Activity> realActivities) {
         this.realActivities = realActivities;
+    }
+
+    public Long getWorkoutId() {
+        return workoutId;
+    }
+
+    public void setWorkoutId(Long workoutId) {
+        this.workoutId = workoutId;
     }
 
     public Double round(Double r) {

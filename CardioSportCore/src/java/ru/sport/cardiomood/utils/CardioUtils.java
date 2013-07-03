@@ -21,17 +21,17 @@ public class CardioUtils {
 
     public static void checkNull(Object o) throws SportException {
         if (o == null) {
-            throw new SportException(CardioUtils.getCallingMethod() + " object is null");
+            SportException ex = new SportException(CardioUtils.getCallingMethod() + " object is null");
+            ex.printStackTrace();
+            throw ex;
         }
     }
-    
+
     public static void checkNulls(Object... obs) throws SportException {
-        for (Object o : obs){
+        for (Object o : obs) {
             checkNull(o);
         }
     }
-    
-    
 
     public static Object getSingleResult(Query q) throws SportException {
         List l = q.getResultList();

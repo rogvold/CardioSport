@@ -54,5 +54,6 @@ public interface WorkoutManagerLocal {
     public List<Activity> getCurrentRealActivities(Long traineeId) throws SportException;
 
 
-
+    public List<JsonWorkout> getHistoryWorkouts(Long traineeId) throws SportException;
+    
 }
