@@ -99,8 +99,8 @@ function generateActivityInfo(actId){
 function generateActivitiesInfoList(list, name, description){
     name = (name == undefined) ? '' : ('<h1 style="padding:5px;">' +name + '</h1>');
     description = (description == undefined) ? '' : ('<br/><span class="orange-text" style="padding:5px;" >' + description + '</span>');
-    var preHtml = name + description +  ' <div class="scroll has-scrollbar"> <ul class="ul-grad scroll-cont" tabindex="0" style="right: -15px;">';
-    var postHtml = '</ul> <div class="pane" style="display: block;"><div class="slider" style="height: 213px; top: 22.12987012987013px;"></div></div></div> ';
+    var preHtml = name + description +  ' <div class="scroll has-scrollbar" style="height: 270px;" > <ul class="ul-grad scroll-cont" tabindex="0" style="right: -15px;">';
+    var postHtml = '</ul> <div class="pane" style="display: block;"><div class="slider" style="height: 143px; top: 22px;"></div></div></div> ';
     var html = '';
     for (var i in list){
         console.log('adding html for actId = ' + list[i]);

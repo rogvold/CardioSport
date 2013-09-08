@@ -98,7 +98,7 @@ and open the template in the editor.
                                 <span class="g6 nomargintop">
                                     #{utilsBean.round(w.duration / 60000)} мин.
                                 </span>
-                                <span class="tag inline green" style="float: right;margin-top: -7px; margin-bottom: -4px;">
+                                <span class="tag inline green" style="float: right;margin-top: -7px; margin-bottom: -4px;" onclick="window.location.href = 'historyDetails.xhtml?workoutId='#{w.id}" >
                                     <a style="color: rgb(153,153,153)" href="historyDetails.xhtml?workoutId=#{w.id}" >подробнее</a>
                                 </span>
                             </div>

@@ -12,8 +12,9 @@ import javax.persistence.*;
 public class Coach extends User implements Serializable {
 
     public Coach() {
-        super();
     }
+
+   
 
     public Coach(String email, String password, String firstName, String lastName, String phone) {
         super(email, password, firstName, lastName, phone);

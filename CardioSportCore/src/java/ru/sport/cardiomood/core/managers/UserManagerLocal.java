@@ -33,4 +33,8 @@ public interface UserManagerLocal {
     public boolean checkLoginInfo(String email, String password) throws SportException;
 
     public Coach updateCoach(Coach c) throws SportException;
+    
+    public void updateMetronomeRate(Double newRate, Long traineeId) throws SportException;
+
+    
 }

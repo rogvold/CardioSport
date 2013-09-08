@@ -12,6 +12,7 @@ import javax.persistence.*;
 public class Trainee extends User implements Serializable {
 
     private Long currentWorkoutId;
+    private Double metronomeRate;
 
     public Trainee() {
     }
@@ -26,6 +27,14 @@ public class Trainee extends User implements Serializable {
 
     public void setCurrentWorkoutId(Long currentWorkoutId) {
         this.currentWorkoutId = currentWorkoutId;
+    }
+
+    public Double getMetronomeRate() {
+        return metronomeRate;
+    }
+
+    public void setMetronomeRate(Double metronomeRate) {
+        this.metronomeRate = metronomeRate;
     }
 
     @Override

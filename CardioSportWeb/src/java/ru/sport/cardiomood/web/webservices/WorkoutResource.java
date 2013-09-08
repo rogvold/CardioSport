@@ -229,12 +229,12 @@ public class WorkoutResource {
             System.out.println("sendData: workoutId = " + workoutId);
             Trainee t = UserUtils.getTraineeByEmailAndPassword(userMan, email, password);
             JsonInput input = (new Gson()).fromJson(data, JsonInput.class);
-            
+
             System.out.println("traineeId = " + t.getId());
-            
+
 //            Workout realW = workMan.getChildCurrentWorkout(workoutId, t.getId());
 //            System.out.println("realW = " + realW);
-            
+
             System.out.println("no, wId = " + workMan.getChildCurrentWorkout(workoutId, t.getId()).getId());
             input.setWorkoutId(workoutId);
             inMan.processInputData(input, t.getId());
@@ -335,6 +335,40 @@ public class WorkoutResource {
             Trainee t = UserUtils.getTraineeByEmailAndPassword(userMan, email, password);
             workMan.unpauseActivity(workoutId, t.getId(), duration);
             JsonResponse jr = new JsonResponse<Long>(null);
+            return SecureResponseWrapper.getJsonResponse(jr);
+        } catch (SportException e) {
+            return SecureCardioExceptionWrapper.wrapException(e);
+        }
+    }
+
+    @POST
+    @Produces("application/json;charset=utf-8")
+    @Path("get_metronome_rate")
+    public String getMetronomeRate(@FormParam("email") String email, @FormParam("password") String password) {
+        try {
+            Trainee t = UserUtils.getTraineeByEmailAndPassword(userMan, email, password);
+
+            if (t.getMetronomeRate() == null) {
+                t.setMetronomeRate(60.0);
+                userMan.updateMetronomeRate(60.0, t.getId());
+            }
+
+            JsonResponse jr = new JsonResponse<Double>(t.getMetronomeRate());
+            return SecureResponseWrapper.getJsonResponse(jr);
+        } catch (SportException e) {
+            return SecureCardioExceptionWrapper.wrapException(e);
+        }
+    }
+
+    @POST
+    @Produces("application/json;charset=utf-8")
+    @Path("get_trainee_metronome_rate")
+    public String getTraineeMetronomeRate(@Context HttpServletRequest req, @FormParam("traineeId") Long traineeId) {
+        try {
+            CardioUtils.checkNull(traineeId);
+            Trainee t = userMan.getTraineeById(traineeId);
+            //todo: check rights
+            JsonResponse<Double> jr = new JsonResponse<Double>(t.getMetronomeRate());
             return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);

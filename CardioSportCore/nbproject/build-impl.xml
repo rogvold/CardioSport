@@ -511,6 +511,8 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.commons-lang3-3.1.jar}" todir="${build.classes.dir}"/>
         <copyfiles files="${file.reference.gson-2.2.2.jar}" todir="${build.classes.dir}"/>
         <copyfiles files="${file.reference.log4j-1.2.16.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${file.reference.json_simple-1.1.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${file.reference.jEN.jar}" todir="${build.classes.dir}"/>
     </target>
     <target if="is.server.weblogic" name="-library-inclusion-in-archive-weblogic">
         <basename file="${file.reference.ant.jar}" property="manifest.file.reference.ant.jar"/>
@@ -520,8 +522,10 @@ exists or setup the property manually. For example like this:
         <basename file="${file.reference.commons-lang3-3.1.jar}" property="manifest.file.reference.commons-lang3-3.1.jar"/>
         <basename file="${file.reference.gson-2.2.2.jar}" property="manifest.file.reference.gson-2.2.2.jar"/>
         <basename file="${file.reference.log4j-1.2.16.jar}" property="manifest.file.reference.log4j-1.2.16.jar"/>
+        <basename file="${file.reference.json_simple-1.1.jar}" property="manifest.file.reference.json_simple-1.1.jar"/>
+        <basename file="${file.reference.jEN.jar}" property="manifest.file.reference.jEN.jar"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Extension-List" value="jar-1 jar-2 jar-3 jar-4 jar-5 jar-6 jar-7 "/>
+            <attribute name="Extension-List" value="jar-1 jar-2 jar-3 jar-4 jar-5 jar-6 jar-7 jar-8 jar-9 "/>
             <attribute name="jar-1-Extension-Name" value="${manifest.file.reference.ant.jar}"/>
             <attribute name="jar-2-Extension-Name" value="${manifest.file.reference.commons-codec-1.4.jar}"/>
             <attribute name="jar-3-Extension-Name" value="${manifest.file.reference.commons-fileupload-1.2.2.jar}"/>
@@ -529,6 +533,8 @@ exists or setup the property manually. For example like this:
             <attribute name="jar-5-Extension-Name" value="${manifest.file.reference.commons-lang3-3.1.jar}"/>
             <attribute name="jar-6-Extension-Name" value="${manifest.file.reference.gson-2.2.2.jar}"/>
             <attribute name="jar-7-Extension-Name" value="${manifest.file.reference.log4j-1.2.16.jar}"/>
+            <attribute name="jar-8-Extension-Name" value="${manifest.file.reference.json_simple-1.1.jar}"/>
+            <attribute name="jar-9-Extension-Name" value="${manifest.file.reference.jEN.jar}"/>
         </manifest>
     </target>
     <target depends="compile" name="library-inclusion-in-manifest">
@@ -539,6 +545,8 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.commons-lang3-3.1.jar}" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.gson-2.2.2.jar}" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.log4j-1.2.16.jar}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.json_simple-1.1.jar}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.jEN.jar}" todir="${dist.ear.dir}/lib"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update"/>
     </target>
     <target name="-copy-meta-inf">

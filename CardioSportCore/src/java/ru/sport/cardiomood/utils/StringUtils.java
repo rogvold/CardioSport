@@ -76,6 +76,21 @@ public class StringUtils {
     public static String convertEncodings(String value, String srcCharset, String dstCharset) {
         return decode(decode(value, srcCharset), dstCharset);
     }
+    
+    public static String toHexString(byte[] byteData) {
+        if (byteData == null) {
+            return StringUtils.EMPTY_STRING;
+        }
+        StringBuilder hexString = new StringBuilder();
+        for (int i = 0; i < byteData.length; i++) {
+            String hex = Integer.toHexString(0xff & byteData[i]);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
 
     public static String concat(String[] values, String delim) {
         final StringBuilder sb = new StringBuilder();

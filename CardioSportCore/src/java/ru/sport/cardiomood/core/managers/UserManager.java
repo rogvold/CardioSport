@@ -104,7 +104,7 @@ public class UserManager implements UserManagerLocal {
 
     @Override
     public boolean checkLoginInfo(String email, String password) throws SportException {
-        System.out.println("checkLoginInfo: email/password = " + email+"/" + password);
+        System.out.println("checkLoginInfo: email/password = " + email + "/" + password);
         checkPassword(password);
         checkEmail(email);
         Query q = em.createQuery("select u from User u where u.email = :email and u.password = :password").setParameter("email", email).setParameter("password", password);
@@ -134,5 +134,12 @@ public class UserManager implements UserManagerLocal {
             return null;
         }
         return list.get(0).getId();
+    }
+
+    @Override
+    public void updateMetronomeRate(Double newRate, Long traineeId) throws SportException {
+        Trainee t = getTraineeById(traineeId);
+        t.setMetronomeRate(newRate);
+        em.merge(t);
     }
 }
