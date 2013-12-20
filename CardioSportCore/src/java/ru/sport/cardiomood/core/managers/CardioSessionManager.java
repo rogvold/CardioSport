@@ -1,6 +1,7 @@
 package ru.sport.cardiomood.core.managers;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -51,6 +52,13 @@ public class CardioSessionManager implements CardioSessionManagerLocal {
         if (c.getStartDate() == null) {
             c.setStartDate(timestamp);
         }
+
+        //FFUUUCCCKKK
+        if (c.getStartDate() == null) {
+            c.setStartDate(new Date().getTime());
+        }
+
+
         List<Integer> list = c.getRates();
         list.addAll(rates);
         c.setRates(list);
@@ -78,10 +86,12 @@ public class CardioSessionManager implements CardioSessionManagerLocal {
             return null;
         }
         Long c = cs.getStartDate();
+        System.out.println("cs start date = " + c);
         List<JsonSession> retList = new ArrayList();
         for (Activity a : as) {
             a.setDuration((a.getDuration() == null) ? 0 : a.getDuration());
             JsonSession newCs = new JsonSession(getRatesInRange(cs, c, a.getDuration()), a.getId(), cs.getWorkoutId(), c, a.getMinHeartRate(), a.getMaxHeartRate(), a.getMinTension(), a.getMaxTension());
+            System.out.println("cs for activity aId = " + a.getId() + "/ cs = " + newCs);
             retList.add(newCs);
             c += a.getDuration();
         }
@@ -95,15 +105,39 @@ public class CardioSessionManager implements CardioSessionManagerLocal {
             return 0;
         } else {
             List<Integer> rates = cs.getRates();
-            return (int) Math.floor(60000 / rates.get(rates.get(rates.size() - 1)));
+            return (int) Math.floor(60000 / rates.get(rates.size() - 1));
         }
     }
 
     @Override
     public List<JsonSession> getWorkoutActivitiesSessions(Long workoutId) throws SportException {
+        System.out.println("getWorkoutActivitiesSessions: workoutId = " + workoutId);
         CardioUtils.checkNull(workoutId);
         CardioSession cs = getCardioSessionByWorkoutId(workoutId);
+        System.out.println("cs = " + cs);
         List<Activity> activities = workMan.getWorkoutActivities(workoutId);
+        System.out.println("getWorkoutActivitiesSessions: activities = " + activities);
         return getTraineeActivitiesSessions(cs, activities);
+    }
+
+    @Override
+    public List<Integer> getLastIntervals(Long workoutId, Long span) throws SportException {
+        CardioSession cs = getCardioSessionByWorkoutId(workoutId);
+        Long s = 0l;
+        if (cs.getRates() == null || cs.getRates().isEmpty()) {
+            return null;
+        } else {
+            List<Integer> rates = cs.getRates();
+            List<Integer> list = new ArrayList();
+            for (Integer l : rates){
+                if (s >= span){
+                    break;
+                }
+                list.add(l);
+                s+=l;
+            }
+            return list;
+        }
+//        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

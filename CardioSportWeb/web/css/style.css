@@ -291,7 +291,7 @@ body {
     color: rgb(153, 153, 153);
     float: left;
     width: 100%;
-/*    height: 38px;*/
+    /*    height: 38px;*/
     font-size: 13px;
     font-weight: bold;
     line-height: 13px;
@@ -1959,4 +1959,12 @@ body {
 
 .textcenter{
     text-align: center;
+}
+
+html{
+    background: url(../img/bg.jpg) #333333;
+}
+
+.modal.show{
+    top: 20px !important;
 }

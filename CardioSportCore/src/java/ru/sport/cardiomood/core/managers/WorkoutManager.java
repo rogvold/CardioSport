@@ -194,18 +194,27 @@ public class WorkoutManager implements WorkoutManagerLocal {
         CardioUtils.checkNull(traineeId);
         Trainee t = userMan.getTraineeById(traineeId);
         Long workoutId = t.getCurrentWorkoutId();
+
+        Workout w = getChildCurrentWorkout(workoutId, traineeId);
+
         JsonUserState jus = new JsonUserState();
         jus.setUserId(traineeId);
-        if (workoutId == null) {
+        if (workoutId == null || w == null) {
+            System.out.println("getInstantState: workoutId is null.");
             return jus;
         }
-        Workout w = getWorkoutById(workoutId);
+//        Workout w = getWorkoutById(workoutId);
         if (w.getStatus().equals(WorkoutStatus.NEW) || w.getStatus().equals(WorkoutStatus.CURRENT) || w.getStatus().equals(WorkoutStatus.FINISHED)) {
             return jus;
         }
-        jus.setDistance(gpsMan.getWorkoutDistance(workoutId));
-        jus.setSpeed(gpsMan.getCurrentSpeed(workoutId));
-        jus.setPulse(csMan.getCurrentPulse(workoutId));
+        jus.setDistance(gpsMan.getWorkoutDistance(w.getId()));
+        jus.setSpeed(gpsMan.getCurrentSpeed(w.getId()));
+        jus.setPulse(csMan.getCurrentPulse(w.getId()));
+
+        System.out.println("getInstantState occured");
+
+        System.out.println("instatntState = " + jus);
+
 
         return jus;
     }
@@ -214,6 +223,7 @@ public class WorkoutManager implements WorkoutManagerLocal {
     public List<JsonUserState> getAllUsersState(Long coachId) throws SportException {
         CardioUtils.checkNull(coachId);
         List<Trainee> trainees = coachMan.getTrainees(coachId);
+        System.out.println("trainees of coach with id = " + coachId + ":" + trainees);
         if (trainees == null || trainees.isEmpty()) {
             return null;
         }
@@ -238,13 +248,19 @@ public class WorkoutManager implements WorkoutManagerLocal {
 
     @Override
     public Workout getChildCurrentWorkout(Long workoutId, Long traineeId) throws SportException {
+        if (workoutId == null) {
+            return null;
+        }
+        System.out.println("retrieving workout with parent WorkoutId = " + workoutId + " and traineeId = " + traineeId);
         CardioUtils.checkNull(workoutId);
         Query q = em.createQuery("select w from Workout w where w.parentWorkoutId = :wId "
                 + "and w.traineeId = :tId "
                 + "and ( w.status = :st1 "
                 + " or w.status = :st2 "
                 + " or w.status = :st3 )").setParameter("st1", WorkoutStatus.CURRENT).setParameter("st2", WorkoutStatus.IN_PROGRESS).setParameter("st3", WorkoutStatus.PAUSED).setParameter("wId", workoutId).setParameter("tId", traineeId);
-        return (Workout) CardioUtils.getSingleResult(q);
+        Workout w = (Workout) CardioUtils.getSingleResult(q);
+        System.out.println("returning workout = " + w);
+        return w;
     }
 
     @Override

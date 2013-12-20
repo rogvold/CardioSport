@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-To change this template, choose Tools | Templates
-and open the template in the editor.
--->
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:f="http://java.sun.com/jsf/core">
     <h:head>
         <meta charset="utf-8"/>
-        <title>FA - Dashboard</title>
+        <title>History Details</title>
         <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
         <link rel="shortcut icon" href="favicon.png"/>
         <!---CSS Files-->
@@ -15,6 +12,7 @@ and open the template in the editor.
         <link rel="stylesheet" href="css/style.css"/>
         <!---jQuery Files-->
         <script src="js/jquery.js"></script>
+        <script src="js/gauge.min.js"></script>
         <script src="js/jquery-ui.js"></script>
         <script src="js/inputs.js"></script>
         <script src="js/flot.js"></script>
@@ -29,7 +27,7 @@ and open the template in the editor.
         <style type="text/css">
             #map{
                 height: 600px !important; 
-                width: calc(90% - 50px) !important;
+                width: calc(80% - 50px) !important;
                 z-index: 10000000;
                 position: relative;
                 display: block;
@@ -69,10 +67,7 @@ and open the template in the editor.
                     <li><a href="activities.xhtml"></a><span class="icon">F</span>актив ности</li>
                     <li ><a href="trainees.xhtml"></a><span class="icon">H</span>Спорт смены</li>
                     <!--                    <li class="active"><span class="icon">G</span>следить</li>-->
-                    <li><a href="extras.html"></a><span class="icon">S</span>Extras</li>
-                    <li><a href="grid.html"></a><span class="icon">N</span>Grid</li>
-                    <li data-modal="#usr-mod #mod-set" id="set-btn"><span class="icon">)</span>Settings</li>
-                    <li id="logout"><a href="index.html"></a><span class="icon icon-grad">B</span>Log Out</li>
+                    <li id="logout"><a href="/CardioSportWeb/logout"></a><span class="icon icon-grad">B</span>Log Out</li>
                 </ul>
                 <br class="clear"/>
             </div>
@@ -93,13 +88,72 @@ and open the template in the editor.
                     <!--                    <span class="blue tag inline"  >назначена тренировка</span>-->
                 </div>
 
+                <span class="g8" style="margin: 0px;">
+                    <p style="text-align: center; border: 1px dotted gray; border-top-left-radius: 5px; border-top-right-radius: 5px;">
+                        <span style="color: firebrick;">пульс</span><br/>
+                        <span class="pulse_label" data-id="#{sportsmanBean.trainee.id}" style="font-size: 25px; color: white;">N/A</span>
+                    </p>
+
+                    <p style="text-align: center; border: 1px dotted gray; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">
+                        скорость<br/>
+                        <span class="speed_label" data-id="#{sportsmanBean.trainee.id}" style="font-size: 25px; color: white;">N/A</span> <span style="font-size: 20px;" ></span>
+                    </p>
+                </span>
+
                 <br class="clear" />
+                <br class="clear" />
+
+                <h3 style="color: white;">
+                    Задать ритм (уд./мин.)
+                </h3>
+                <center>
+                    <div class="box chart-row3 square anlt-donut">
+
+                        <div class="donut-ov">
+                            <div class="donut-ov-inner"></div>
+                            <input type="text" id="knob" style="display: none;" value="100" data-cursor="true" data-thickness=".4"/>
+                            <span id="metronomeRate" style="height: 66px;
+                                  position: absolute;
+                                  margin-top: 85px;
+                                  left: 70px;
+                                  font-size: 36px;
+                                  " >0</span>
+                        </div>
+                    </div>
+                </center>
+                <center>
+                    <div>
+                        <span class="button" id="metronomeUpButton" style="margin-bottom: 20px; font-size: 30px;">↑</span>
+                        <span class="button" id="metronomeDownButton" style="margin-top: 20px; font-size: 30px;">↓</span>
+                    </div>
+                </center>
+
+                <span class="g3">
+                    <center>
+                        <span style="color: white;">
+                            Дисперсия
+                        </span>
+                    </center>
+                    <!--                    <div id="gauge-div">-->
+                    <canvas id="gauge_canvas" width="220"  height="100">
+
+                    </canvas>
+                    <center>
+                        <span style="color: white;" id="gaugeSpanVal">
+
+                        </span>
+                    </center>
+
+                    <!--                    </div>-->
+
+                </span>
+
                 <br class="clear" />
                 <!--                <h1 style="text-align: center; color: rgb(153, 153, 153);">
                                     Тренировка
                                 </h1>-->
 
-                <span class="g8">
+                <span class="g8" style="display: none;" >
                     <h3 style="text-align: center; color: rgb(153, 153, 153);" class="g14">
                         Запланировано
                     </h3>
@@ -136,10 +190,10 @@ and open the template in the editor.
                         </div>
                     </c:forEach>
                 </span>
-                <span class="g8">
-                    <h3 style="text-align: center; color: rgb(153, 153, 153);" class="g14">
-                        На самом деле
-                    </h3>
+                <span class="g16">
+                    <!--                    <h3 style="text-align: center; color: rgb(153, 153, 153);" class="g14">
+                                            На самом деле
+                                        </h3>-->
 
                     <br/>
                     <c:forEach items="#{sportsmanBean.realActivities}" var="a" varStatus="st">
@@ -179,9 +233,16 @@ and open the template in the editor.
                             <div class="box-body" style="display: none;" >
                                 <br/>
                                 #{a.description}
-                                <div id="plot#{a.id}" class="g16 myPlot" style="height: 200px; width: 100%;" >
-
-                                </div>
+                                <br/>
+                                <h3 style="margin-top: 20px;" >пульс</h3>
+                                <br/>
+                                <div id="plot#{a.id}" class="g16 myPlot" style="height: 200px; width: 100%; margin-bottom: 20px;" ></div>
+                                <br/>
+                                <h3 style="margin-top: 20px;" >дисперсия RR интервалов (ms)</h3>
+                                <div id="dispPlot#{a.id}" class="g16 myPlot" style="height: 200px; width: 100%; margin-bottom: 20px;" ></div>
+                                <br/>
+                                <h3 style="margin-top: 20px;" >Индекс напряжения</h3>
+                                <div id="tensionPlot#{a.id}" class="g16 myPlot" style="height: 200px; width: 100%;" ></div>
                                 <!--                                <ul style="margin-top: 20px;">
                                                                     <li><span class="g8">Минимальный пульс</span> <span class="orange-text g8"> #{a.minHeartRate} уд/мин</span></li>
                                                                     <li><span class="g8">Максимальный пульс</span> <span class="orange-text g8"> #{a.maxHeartRate} уд/мин</span></li>
@@ -216,10 +277,107 @@ and open the template in the editor.
 
         <!---jQuery Code-->
         <script type='text/javascript'>
+            
+            function initGauge(){
+                var opts = {
+                    lines: 12, // The number of lines to draw
+                    angle: 0.0, // The length of each line
+                    lineWidth: 0.15, // The line thickness
+                    pointer: {
+                        length: 0.9, // The radius of the inner circle
+                        strokeWidth: 0.035, // The rotation offset
+                        color: '#000000' // Fill color
+                    },
+                    limitMax: 'false',   // If true, the pointer will not go past the end of the gauge
+
+                    colorStart: '#6FADCF',   // Colors
+                    colorStop: '#8FC0DA',    // just experiment with them
+                    strokeColor: '#E0E0E0',   // to see which ones work best for you
+                    generateGradient: true
+                };
+                var target = document.getElementById('gauge_canvas'); // your canvas element
+                gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
+                gauge.maxValue = 100; // set max gauge value
+                gauge.animationSpeed = 100; // set animation speed (32 is default value)
+                gauge.set(0); // set actual value
+            }
+
+            function loadMetronome(){
+                var traineeId = $('#status_tag').attr('data-id');
+                $.ajax({
+                    url: "/CardioSportWeb/resources/workout/get_trainee_metronome_rate",
+                    data: {
+                        traineeId : traineeId
+                    },
+                    type: "POST",
+                    success: function(data){
+                        $('#metronomeRate').text(data.data);
+                        prevKnob = 100;
+                        currKnob = 100;
+                        $('#knob').knob({ 'bgColor':'rgba(255,255,255,0.04)','fgColor':'#d6960b', 'cursor':'60',
+                            change: function(data){
+                                prevKnob = currKnob;
+                                currKnob = data;
+                    
+                                var diff = currKnob - prevKnob;
+                    
+                                if (Math.abs(diff) > 50){
+                                    if (prevKnob > currKnob ){
+                                        diff+=100;
+                                    }else{
+                                        diff-=100;
+                                    }
+                                }
+                    
+                                var rate = $('#metronomeRate').text().trim() * 1.0;
+                                rate = rate + diff;
+                                $('#metronomeRate').text(rate);
+                                updateMetronomeRate();
+                            }
+                        });
+                        
+                    }
+                });
+                
+                $('#metronomeUpButton').live('click', function(){
+                    var rate = $('#metronomeRate').text().trim() * 1.0;
+                    rate+=1;
+                    $('#metronomeRate').text(rate);
+                    updateMetronomeRate();
+                });
+                $('#metronomeDownButton').live('click', function(){
+                    var rate = $('#metronomeRate').text().trim() * 1.0;
+                    if (rate > 0){
+                        rate--;
+                    }
+                    $('#metronomeRate').text(rate);
+                    updateMetronomeRate();
+                });
+            }
+
+
+            function updateMetronomeRate(){
+                var traineeId = $('#status_tag').attr('data-id');
+                var newRate = $('#metronomeRate').text().trim() * 1.0;
+                $.ajax({
+                    url: "/CardioSportWeb/resources/workout/set_trainee_metronome_rate",
+                    data: {
+                        traineeId : traineeId,
+                        rate: newRate
+                    },
+                    type: "POST",
+                    success: function(data){
+                        console.log('metronome updated');
+                    }
+                });
+            }
 
             // LOAD FUNCTIONS
             //<![CDATA[
             $.fn.loadfns( function() {
+                initGauge();
+                
+                
                 initRRPlots();
                 getGps();
                 //                loadAll();
@@ -227,6 +385,17 @@ and open the template in the editor.
                 $('#trigger-id').modal();
                 //                $('#calendar').calEvents();
                 $('#ind-cont #nbill').removeClass('init');
+                
+                loadMetronome();
+                
+                updateUsersState();
+                setInterval(function(){
+                    updateUsersState();
+                }, 5000);
+                
+                
+                
+                
                 //                if ($('#ind-cont').width() < 500) $('#ind-cont').find('.pie-desc').addClass('overlay');
                 //                $(window).resize( function() {
                 //                    if ($('body').children('#toast-container').length < 1)

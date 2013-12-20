@@ -42,4 +42,9 @@ public class JsonUserState {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+
+    @Override
+    public String toString() {
+        return "JsonUserState{" + "userId=" + userId + ", speed=" + speed + ", pulse=" + pulse + ", distance=" + distance + '}';
+    }
 }

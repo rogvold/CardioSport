@@ -35,6 +35,25 @@ function login(email, password){
 }
 
 
+function logout(){
+    
+    $.ajax({
+        url: '/CardioSportWeb/resources/auth/logout',
+        type: "POST",
+        success: function(data){
+            if (data.error != undefined){
+                alert(data.error.message);
+                return;
+            }
+            window.location.href = '/CardioSportWeb/login.xhtml';
+        },
+        error: function(){
+            loginFailedCallback("Проверьте подключение к интернету");
+        }
+    });
+}
+
+
 function register(email, password){
     //    alert('register: email/password = ' + email + "/" + password);
     var d = "email="+email+"&password="+password;
@@ -88,7 +107,7 @@ function sustainSession(){
                 
             },
             error: function(){
-                alert('unable to get the server response');
+//                alert('unable to get the server response');
             }
         });
     }, 10000);

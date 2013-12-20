@@ -1,4 +1,11 @@
-
+function gup( name ){
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");  
+    var regexS = "[\\?&]"+name+"=([^&#]*)";  
+    var regex = new RegExp( regexS );  
+    var results = regex.exec( window.location.href ); 
+    if( results == null )    return "";  
+    else    return results[1];
+}
 
 
 function initActivitiesListHTML(divId){
@@ -219,11 +226,12 @@ function drawAllRRPlots(workoutId){
     $.ajax({
         url: "/CardioSportWeb/resources/workout/activity_sessions",
         data: {
-            workoutId : workoutId  
+            workoutId : workoutId
         },
         type: "POST",
         success: function(data){
             de = data;
+            console.log(de);
             drawAllActivityPlots(data.data);
         }
     });
@@ -231,6 +239,25 @@ function drawAllRRPlots(workoutId){
 
 function initRRPlots(){
     drawAllRRPlots(getParameter("workoutId"));
+}
+
+
+function filterDisconnectionPoints(points){
+    var DISCONNECTION_BOUND = 5000;
+    var arr = new Array();
+    for (var i in points){
+        var currentPoint = points[i];
+        if (currentPoint[1] >= DISCONNECTION_BOUND){
+            var leftPoint = points[i - 1];
+            leftPoint[1] = 0;
+            var rightPoint = [leftPoint[0] + currentPoint[1], 0];
+            arr.push(leftPoint);
+            arr.push(rightPoint);
+            continue;
+        }
+        arr.push(points[i]);
+    }
+    return arr;
 }
 
 function getPLotPointsFromJsonSession(session){
@@ -249,6 +276,117 @@ function getPLotPointsFromJsonSession(session){
     return mas;
 }
 
+function filterIntervals(intervals){
+    var bottom = 285;
+    var top = 1714;
+    var mas = new Array();
+    
+    var m = 0;
+    for (var i in intervals){
+        m+=intervals[i];
+    }
+    m = m / intervals.length;
+    
+    for (var i in intervals){
+        if (i > 0){
+            if ( ((intervals[i] < 0.8 * intervals[i-1] ) && (intervals[i] < 0.8 * intervals[i+1])) || ((intervals[i] > 1.2 * intervals[i-1] ) && (intervals[i] > 1.2 * intervals[i+1])) ){
+                intervals[i] = (intervals[i-1] + intervals[i+1]) / 2.0;
+            }
+        }
+        
+        if (intervals[i] < 0.8 * m || intervals[i] > 1.2 * m){
+            intervals[i] = m;
+        }
+        
+        if (intervals[i] > top || intervals[i] < bottom){
+            continue;
+        }
+        mas.push(intervals[i]);
+    }
+    return mas;
+}
+
+function getDispersionOfIntervals(intervals){
+    //    console.log('getDispersionOfIntervals: intervals = ');
+    //    console.log(intervals);
+    intervals = filterIntervals(intervals);
+    if (intervals.length < 2){
+        return -10;
+    }
+    var m_x2 = 0;
+    var m = 0;
+    for (var i in intervals){
+        m_x2+= intervals[i] * intervals[i];
+        m+=intervals[i];
+    }
+    m_x2 = m_x2 / (1.0 * intervals.length);
+    return Math.sqrt(m_x2 - m*m / (intervals.length * intervals.length));
+}
+
+function getDispersionPlotPointsFromJsonSession(session){
+    var window_amount = 20;
+    var k = 0;
+    var t = session.start;
+    var mas = new Array(session.rates.length);
+    for (var i = 0; i < window_amount; i++){
+        mas[i] = new Array(2);
+        mas[i][0] = t;
+        mas[i][1] = -10;
+        t+=session.rates[i];
+    }
+    for (i = window_amount; i < session.rates.length; i++){
+        var mas2 = new Array();
+        for (var j = i - window_amount; j < i; j++){
+            mas2.push(session.rates[j]);
+        }
+        var s = getDispersionOfIntervals(mas2);
+        mas[i] = new Array(2);
+        mas[i][0] = t;
+        mas[i][1] = s;
+        t+=session.rates[i];
+    }
+    
+    return mas;
+}
+
+function getTensionPlotPointsFromJsonSession(session){
+    var windowTime = 120000;
+    var stepNumber = 10; //через каждые 10 интервалов пересcчитываем напряжение
+    var mas = [];
+    var sum = 0;
+    var t = new Array(session.rates.length);
+    t[0] = session.start;
+    var k = 0;
+    for (var i in session.rates){
+        if (i == 0){
+            continue;
+        }
+        t[i] = t[i-1] + session.rates[i];
+    }
+    //    var res = new Array((session.rates.length / stepNumber) + 1);
+    var res = new Array();
+    for (i = 0; i < session.rates.length; i+=stepNumber){
+        mas = [];
+        sum = 0;
+        for (var j = i; j >= 0; j--){
+            var rate = session.rates[j];
+            sum+=rate;
+            mas.push(rate);
+            if (sum >= windowTime){
+                break;
+            }
+        }
+        if (sum < windowTime - 3000){
+            continue;
+        }
+        var tension = getTension(mas);
+        res.push([t[i], tension]);
+    }
+    console.log('getTensionPlotPointsFromJsonSession:');
+    console.log(res);
+    return res;
+}
+
 function getParameter(name) {
     name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -257,14 +395,64 @@ function getParameter(name) {
 }
 
 function drawAllActivityPlots(sessions){
+    var lastSigma = 100;
     for (var i in sessions){
-        drawPlot('plot' + sessions[i].activityId , getPLotPointsFromJsonSession(sessions[i]), sessions[i].minPulse, sessions[i].maxPulse);
+        drawPlot('plot' + sessions[i].activityId , getPLotPointsFromJsonSession(sessions[i]), sessions[i].minPulse, sessions[i].maxPulse, true);
+        var dispPlot = getDispersionPlotPointsFromJsonSession(sessions[i])
+        drawPlot('dispPlot' + sessions[i].activityId , dispPlot , undefined, undefined);
+        if (dispPlot[dispPlot.length - 1][1] != undefined && dispPlot[dispPlot.length - 1][1] > 0){
+            lastSigma = dispPlot[dispPlot.length - 1][1];
+        }
+        var tensPlot = getTensionPlotPointsFromJsonSession(sessions[i]);
+        drawPlot('tensionPlot' + sessions[i].activityId , tensPlot , 150, 150);
     }
+    lastSigma = Math.round(100 * lastSigma) / 100.0;
+    var gVal = (lastSigma >= 100) ? 0 : 100 - lastSigma;
+    gauge.set(gVal);
+    $('#gaugeSpanVal').text(lastSigma);
+    console.log('lastSigma = ');
+    console.log(lastSigma);
+    
+    initDispersionGauge(gup('workoutId'));
 }
 
-function drawPlot(divId, points, minPulse, maxPulse){
-    console.log('points');
+function initDispersionGauge(workoutId){
+    var timeInterval = 3000;
+    var window = 25000;
+    var window_amount = 20;
+    setInterval(function(){
+        $.ajax({
+            url: '/CardioSportWeb/resources/workout/last_intervals',
+            type: 'POST',
+            data: {
+                workoutId : workoutId,
+                timeInterval: window
+            },
+            success: function(data){
+                var rates = data.data;
+                if (rates == undefined){
+                    return;
+                }
+                var sigma = getDispersionOfIntervals(rates.slice(Math.max(rates.length - window_amount - 1, 0), rates.length));
+                //                var sigma = getDispersionOfIntervals(rates);
+                sigma = Math.round(100 * sigma) / 100.0;
+                var gVal = (sigma >= 100) ? 0 : 100 - sigma;
+                gauge.set(gVal);
+                $('#gaugeSpanVal').text(sigma);
+            }
+        });
+    }, timeInterval);
+}
+
+function drawPlot(divId, points, minPulse, maxPulse, filterDisconnectionPointsFlag){
+    console.log('points before disconnection filtering');
     console.log(points);
+    console.log('points after disconnection filtering');
+    if (filterDisconnectionPointsFlag != undefined){
+        points = filterDisconnectionPoints(points);
+    }
+    console.log(points);
+    
     if (points == undefined || points.length < 2){
         $('#'+divId).hide();
         return;
@@ -272,8 +460,8 @@ function drawPlot(divId, points, minPulse, maxPulse){
         $('#'+divId).parent('div').show();
     }
     
-    var minData = [[points[0][0],minPulse], [points[points.length - 1][0],minPulse]];
-    var maxData = [[points[0][0],maxPulse], [points[points.length - 1][0],maxPulse]];
+    var minData = (minPulse == undefined) ? undefined : [[points[0][0],minPulse], [points[points.length - 1][0],minPulse]];
+    var maxData = (maxPulse == undefined) ? undefined :  [[points[0][0],maxPulse], [points[points.length - 1][0],maxPulse]];
     
     var options = {
         series: {
@@ -289,8 +477,19 @@ function drawPlot(divId, points, minPulse, maxPulse){
         },
         grid: {
             borderWidth: 0
-        } 
+        }
     };
+    
+    if (minData == undefined || maxData == undefined){
+        plot2 = $.plot($("#"+divId),
+            [   {
+                data: points, 
+                lines: {
+                    show:true
+                
+                }
+            } ], options);
+    }
     
     plot2 = $.plot($("#"+divId),
         [   {
@@ -344,7 +543,6 @@ function drawGoogleMap(divId, points){
         strokeOpacity: 0.8,
         strokeWeight: 2
     });
-
 }
 
 function getGps(){
@@ -361,4 +559,92 @@ function getGps(){
             drawGoogleMap('map', convertGps(data.data));
         }
     });
+}
+
+
+            
+function getAverageRR(points){
+    var s = 0;
+    for (var i in points){
+        s+=points[i];
+    }
+    return 1.0 * s / points.length;
+}
+            
+            
+function getMo(points){
+    var width = 50;
+    var xmin = 300;
+    var mas = [];
+    for (var i=0; i <  Math.floor(1000 / width); i++){
+        mas.push(0);
+    }
+    for (var i = 0; i < points.length; i++){
+        mas[Math.floor((points[i] - xmin)/width)]++;
+    }
+                
+    var res = 300;
+    var max = 0;
+    for (var i in mas){
+        if (mas[i] > max){
+            max = mas[i];
+            res = xmin + i * width;
+        }
+    }
+    return res;
+}
+            
+function getAmo(points){
+    var width = 50;
+    var xmin = 300;
+    var mas = [];
+    for (var i=0; i <  Math.floor(1000 / width); i++){
+        mas.push(0);
+    }
+    for (var i = 0; i < points.length; i++){
+        mas[Math.floor((points[i] - xmin)/width)]++;
+    }
+                
+    var max = 0;
+    for (var i in mas){
+        if (mas[i] > max){
+            max = mas[i];
+        }
+    }
+    return 100.0 * max / points.length;
+}
+            
+function getBP(points){
+    return getMax(points) - getMin(points);
+}
+            
+function getMin(points){
+    var min = 1500;
+    for (var i in points){
+        if (points[i] < min){
+            min = points[i];
+        }
+    }
+    return min;
+}
+function getMax(points){
+    var max = 0;
+    for (var i in points){
+        if (points[i] > max){
+            max = points[i];
+        }
+    }
+    return max;
+}
+            
+function getTension(points){
+    var amo = getAmo(points);
+    var mo = getMo(points);
+    var vp = getBP(points);
+                
+    console.log('amo = ' + amo);
+    console.log('mo = ' + mo);
+    console.log('vp = ' + vp);
+                
+    return Math.floor(amo * 1000.0 * 1000.0 / (2.0 * mo * vp));
 }

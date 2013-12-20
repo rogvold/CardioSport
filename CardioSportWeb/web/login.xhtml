@@ -16,7 +16,7 @@
         <!---jQuery Files-->
         <script src="js/jquery.js"></script>
         <script src="js/inputs.js"></script>
-        
+
         <script src="js/auth.js"></script>
     </h:head>
     <h:body>
@@ -24,16 +24,16 @@
 
             <div id="header">
                 <div id="logo"></div>
-                <h1>CardioMood - Вход в систему</h1>
+                <h1>CardioSport - Вход в систему</h1>
             </div>
 
-            <div id="body">
+            <div id="body" style="margin-bottom: 20px;">
                 <div id="head">
                     <span class="icon">K</span>
-                    <h2>Enter your credentials to login</h2>
+                    <h2>Введите электронную почту и пароль</h2>
                     <br class="clear"/>
                 </div>
-                <form id="alt-lg-form" method="post" action="dashboard.html">
+                <form id="alt-lg-form" method="post" action="#">
                     <div id="middle">
                         <ul id="lg-input">
                             <li id="usr-li">
@@ -41,17 +41,22 @@
                                 <span class="icon">a</span>
                             </li>
                             <li id="psw-li">
-                                <input type="password" name="pass" id="psw" class="required" placeholder="Password"/>
+                                <input type="password" name="pass" id="psw" class="required" placeholder="Пароль"/>
                                 <span class="icon">/</span>
                             </li>
                         </ul>
                     </div>
                     <div id="bottom">
-                        <span type="submit" id="login_submit" style="float: right; cursor: pointer;" class=" tag gray inline">LOGIN</span>
+                        <span type="submit" id="login_submit" style="float: right; cursor: pointer;" class=" tag gray inline">ВХОД</span>
                         <br class="clear"/>
                     </div>
                 </form>
             </div>
+            <center>
+                <a href="register.html" style="margin-top: 20px;" >
+                    Зарегистрироваться
+                </a>
+            </center>
 
         </div>
 
@@ -71,7 +76,7 @@
                 });
             });
 
-//            $('#rb-check').flcheck();
+            //            $('#rb-check').flcheck();
 
             $('#alt-lg-form').validateLogin();
 

@@ -125,9 +125,27 @@ public class WorkoutResource {
     @Path("activity_sessions")
     public String getActivityCardioSession(@Context HttpServletRequest req, @FormParam("workoutId") Long workoutId) {
         try {
+            System.out.println("getActivityCardioSession");
+            System.out.println("getActivityCardioSession occured: workoutId = " + workoutId);
             CardioUtils.checkNull(workoutId);
             List<JsonSession> sessions = cardMan.getWorkoutActivitiesSessions(workoutId);
+
             JsonResponse<List<JsonSession>> jr = new JsonResponse<List<JsonSession>>(sessions);
+            return SecureResponseWrapper.getJsonResponse(jr);
+        } catch (SportException e) {
+            return SecureCardioExceptionWrapper.wrapException(e);
+        }
+    }
+
+    @POST
+    @Produces("application/json;charset=utf-8")
+    @Path("last_intervals")
+    public String getLastIntervals(@Context HttpServletRequest req, @FormParam("workoutId") Long workoutId, @FormParam("timeInterval") Long timeInterval) {
+        try {
+            CardioUtils.checkNull(workoutId);
+            List<Integer> rates = cardMan.getLastIntervals(workoutId, timeInterval);
+
+            JsonResponse<List<Integer>> jr = new JsonResponse<List<Integer>>(rates);
             return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);
@@ -229,7 +247,7 @@ public class WorkoutResource {
             System.out.println("sendData: workoutId = " + workoutId);
             Trainee t = UserUtils.getTraineeByEmailAndPassword(userMan, email, password);
             JsonInput input = (new Gson()).fromJson(data, JsonInput.class);
-
+            System.out.println("input = " + input);
             System.out.println("traineeId = " + t.getId());
 
 //            Workout realW = workMan.getChildCurrentWorkout(workoutId, t.getId());
@@ -369,6 +387,21 @@ public class WorkoutResource {
             Trainee t = userMan.getTraineeById(traineeId);
             //todo: check rights
             JsonResponse<Double> jr = new JsonResponse<Double>(t.getMetronomeRate());
+            return SecureResponseWrapper.getJsonResponse(jr);
+        } catch (SportException e) {
+            return SecureCardioExceptionWrapper.wrapException(e);
+        }
+    }
+
+    @POST
+    @Produces("application/json;charset=utf-8")
+    @Path("set_trainee_metronome_rate")
+    public String setTraineeMetronomeRate(@Context HttpServletRequest req, @FormParam("traineeId") Long traineeId, @FormParam("rate") Double newRate) {
+        try {
+            CardioUtils.checkNull(traineeId);
+            userMan.updateMetronomeRate(newRate, traineeId);
+            //todo: check rights
+            JsonResponse jr = new JsonResponse(null);
             return SecureResponseWrapper.getJsonResponse(jr);
         } catch (SportException e) {
             return SecureCardioExceptionWrapper.wrapException(e);

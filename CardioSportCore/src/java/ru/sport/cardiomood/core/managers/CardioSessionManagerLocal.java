@@ -20,4 +20,6 @@ public interface CardioSessionManagerLocal {
     public Integer getCurrentPulse(Long workoutId) throws SportException;
 
     public List<JsonSession> getWorkoutActivitiesSessions(Long workoutId) throws SportException;
+    
+    public List<Integer> getLastIntervals(Long workoutId, Long span) throws SportException;
 }

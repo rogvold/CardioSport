@@ -101,4 +101,9 @@ public class JsonSession {
     public void setMinTension(Double minTension) {
         this.minTension = minTension;
     }
+
+    @Override
+    public String toString() {
+        return "JsonSession{" + "rates=" + rates + ", activityId=" + activityId + ", workoutId=" + workoutId + ", start=" + start + ", minPulse=" + minPulse + ", maxPulse=" + maxPulse + ", minTension=" + minTension + ", maxTension=" + maxTension + '}';
+    }
 }

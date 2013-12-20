@@ -110,6 +110,6 @@ function updateUserState(state){
     
     console.log('oldPulse = ' + $('.pulse_label[data-id="'+state.userId+'"]').text());
     $('.pulse_label[data-id="'+state.userId+'"]').text((state.pulse == undefined) ? 'N/A' : state.pulse);
-    $('.speed_label[data-id="'+state.userId+'"]').text((state.speed == undefined) ? 'N/A' : state.speed + ' км/ч');
-    $('.distance_label[data-id="'+state.userId+'"]').text((state.distance == undefined) ? 'N/A' : state.distance + ' m');
+    $('.speed_label[data-id="'+state.userId+'"]').text((state.speed == undefined) ? 'N/A' : (Math.floor(state.speed*10) / 10.0) + ' км/ч');
+    $('.distance_label[data-id="'+state.userId+'"]').text((state.distance == undefined) ? 'N/A' : (Math.floor(state.distance*10) / 10.0) + ' m');
 }

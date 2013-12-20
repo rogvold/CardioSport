@@ -72,4 +72,9 @@ public class JsonInput {
     public void setWorkoutId(Long workoutId) {
         this.workoutId = workoutId;
     }
+
+    @Override
+    public String toString() {
+        return "JsonInput{" + "timestamp=" + timestamp + ", rr=" + rr + ", hr=" + hr + ", geo=" + geo + ", workoutId=" + workoutId + ", audioTrackId=" + audioTrackId + ", audioTrackPos=" + audioTrackPos + '}';
+    }
 }
